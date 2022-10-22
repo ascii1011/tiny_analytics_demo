@@ -1,5 +1,7 @@
 # tiny_analytics_demo
 
+Author: Christopher Harty
+
 The contents of this repository are meant to display talent and not meant for production use.
 Use at your own risk.
 
