@@ -1,7 +1,6 @@
 # tiny_analytics_demo
 
-Author: Christopher Harty\n
-Date: Oct 2022\n
+Author: Christopher Harty / Date: Oct 2022
 
 ## Warning
 This repository is meant to be a demo to show talent only and not meant for production use.
