@@ -1,0 +1,14 @@
+pipeline {
+    agent { 
+        node {
+            label 'docker-agent-python'
+            }
+      }
+    stages {
+        stage('Build Base image') {
+            steps {
+                echo "Building base image.."
+            }
+        }
+    }
+}
