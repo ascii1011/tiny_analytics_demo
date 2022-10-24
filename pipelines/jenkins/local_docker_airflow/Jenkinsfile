@@ -10,5 +10,10 @@ pipeline {
                 echo "Building base image.."
             }
         }
+        stage('Build Base image') {
+            steps {
+                echo "Building base image.."
+            }
+        }
     }
 }
