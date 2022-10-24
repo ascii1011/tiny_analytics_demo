@@ -1,0 +1,54 @@
+
+The following is a list of possible paths for expansion
+
+solution backed topics:
+ - S3 in place of 
+    - hdfs for injection entry point
+    - hive as staging 
+
+Workflow ideas:
+ - basic best routing (A*/Dijkstra)
+ - basic best sentiment
+ - basic best dimensions
+ - specific targetting, decision, and reaction
+    - use nlp for 
+        - political sentiment
+        - location
+        - affiliation
+        - graphql db
+        - extract geospacial targets 
+    - use ML/AI for best response
+    resulting in:
+         - predictive geospatical paths
+         - grading and course of actions
+         - diplay real time weighted relationships
+
+
+special case coding:
+ - [flexibility,efficiency] create simple rust exec to parse/filter lines in well defined csv file
+ - [high level architecture, abstraction, reusability] create tenantized tmplated approach to dags
+ - [real use case workflow step] use bash to make calls with ansible/socket to staging image to call rust exec
+  
+
+
+
+additional aspects to consider enhancing at a later point:
+Security (AWS IAM, Airflow auth)
+
+Data stores:
+ - RDS, Redshift, DynamoDB
+
+Resiliency:
+ - the use of RDS, loadbalancers and other services would be nice
+
+Scalability:
+ - unfortuntely with time and cost contraints it is probably not feasable to host features like: 
+        - Building out Airflow scheduler and workers within kubernetes on EKS
+        - Backing it properly with RDS or Redshift
+        - using Lambda for are a bit out of scope at the moment.
+    
+Advanced queries jupyter, scala, etc...
+Analytics
+ML
+AI
+Quantum

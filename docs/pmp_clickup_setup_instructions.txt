@@ -1,0 +1,7 @@
+
+# clickup is a free online management tool
+
+Navigate to https://clickup.com
+Sign in/create account
+'+ new space' >> 'Tiny Analytics Platform Demo'
+

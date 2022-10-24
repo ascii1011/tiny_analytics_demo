@@ -1,0 +1,163 @@
+#!/bin/bash
+
+# Jenkins is a free opensource "continuous integration and continious deployment" tool
+
+# This specific setup is from a tutorial series and I would not use this for production.
+# Building this on a macbookpro and assumes docker is already installed and running.
+
+
+############ build image ##############
+# build the jenkins image
+`$ sudo docker build -t myjenkins-blueocean:2.332.3-1 .`
+
+# Example output:
+  password: <your os password>
+  ...
+  [+] Building 162.0s (10/10) FINISHED
+  ...
+  => => naming to docker.io/library/myjenkins-blueocean:2.332.3-1
+
+# Checking the image out:
+`$ docker images`
+REPOSITORY            TAG         IMAGE ID       CREATED          SIZE
+myjenkins-blueocean   2.332.3-1   ****3408400f   1 minute ago     777MB
+
+
+############ create network ###############
+# create network 'jenkins' 
+`$ docker network create jenkins`
+
+# example output:
+  ec823aa3f1f6386fd28e6cac1dp1f1e24befaze934f47cf2b2c6076065224c40
+
+
+####################### run Jenkins primary node ################################
+# run the jenkins image on port 8100 as many other things run on it as a default
+`$ docker run --name jenkins-blueocean --restart=on-failure --detach \
+  --network jenkins --env DOCKER_HOST=tcp://docker:2376 \
+  --env DOCKER_CERT_PATH=/certs/client --env DOCKER_TLS_VERIFY=1 \
+  --publish 8100:8080 --publish 50000:50000 \
+  --volume jenkins-data:/var/jenkins_home \
+  --volume jenkins-docker-certs:/certs/client:ro \
+  myjenkins-blueocean:2.332.3-1`
+
+# example output:
+  0a717544a1ms7e3a4f1756b3f8ta8759546f7b459d8c276af214f8e66acd5a72
+
+# Checking the primary jenkins node image out:
+`$ docker ps -a`
+CONTAINER ID   IMAGE                           COMMAND                  CREATED          STATUS                     PORTS                                              NAMES
+*****544af82   myjenkins-blueocean:2.332.3-1   "/usr/bin/tini -- /u…"   1 minute ago     Up 1 minutes               0.0.0.0:50000->50000/tcp, 0.0.0.0:8100->8080/tcp   jenkins-blueocean
+
+
+########## get default password #############
+# get default password
+`$ docker exec jenkins-blueocean cat /var/jenkins_home/secrets/initialAdminPassword`
+
+# example output:
+  p8a8d7908af54c2f919106fbeu7f4b54
+# copy the hash(password) that appears
+
+##############################################
+# navigate to https://localhost:8100/ and paste in the hash as the password
+
+##############################################
+# next step is to create a new admin, so do it :)
+
+
+#
+#
+# Next part, setting up the agent server and defining the agent in jenkins
+#
+#
+
+
+#############################################
+# Setup an agent
+
+# create a remote agent server
+`$ docker run -d --restart=always -p 127.0.0.1:2376:2375 \
+  --network jenkins \
+  -v /var/run/docker.sock:/var/run/docker.sock alpine/socat tcp-listen:2375,fork,reuseaddr unix-connect:/var/run/docker.sock`
+
+# example output of the container id:
+  12349a94321
+
+# Checking the primary jenkins node image out:
+`$ docker ps -a`
+CONTAINER ID   IMAGE                           COMMAND                  CREATED          STATUS                     PORTS                                              NAMES
+12349a94321   alpine/socat                    "socat tcp-listen:23…"   1 seconds ago   Up 1 second              127.0.0.1:2376->2375/tcp                           wonderful_shockley
+
+# get agent ip address
+`$ docker inspect 12349a94321 | grep IPAddress`
+example output:
+  172.19.0.3
+# copy this address to use later in the 'docker cloud details' section below, we will call it <agent_ip>
+
+
+###############################################
+Define agent - Docker and cloud agents
+
+Steps:
+In Jenkins UI (dashboard) -> 
+(left)manage jenkins -> 
+(main)manage nodes and clouds -> 
+(left) configure clouds -> 
+(main) go to plugin manager -> choose docker (download after restart)
+
+wait for restart
+In Jenkins UI (dashboard) -> 
+(left)manage jenkins -> 
+(main)manage nodes and clouds -> 
+(left) configure clouds ->
+(main) add a new cloud (choose) docker ->
+  (main btn) docker cloud details:
+    name: ...
+    URI (remote worker agent):  tcp://172.19.0.3:2375
+    Enabled: checked
+    Test connection should give "version = 20.10.12, API Version = 1.41"
+
+  (main btn) Docker agent template
+    (btn) add docker template
+      label (short,descriptive,important, lets primary node know which worker to build with): docker-agent-alpine
+      Enabled: checked
+      name (just copy from label, for consistancy): docker-agent-alpine
+      docker image: jenkins/agent:alpine-jdk11
+      instance capacity: 2
+      remote file system root(default for all jenkins agents): /home/jenkins
+  (btn) save
+
+
+#
+#
+# create job that uses an agent
+#
+#
+
+#########################################
+Create simple job using agent
+
+Steps:
+In Jenkins UI (dashboard) ->
+(left) New Items ->
+(main) [general] tab:
+  first list of checkboxes:
+    'Restrict where this project can be run' checked
+      label expression: docker-agent-alpine
+
+  Build
+    (dropdown) add build step ->
+      (choose) execute shell
+        command input:
+          `echo "hello world"`
+
+  SAVE!
+
+
+  ########### run it ############
+  click on (left)'build now' within the job we just created.
+
+
+
+
+  done....
