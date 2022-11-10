@@ -25,8 +25,6 @@ from airflow.utils import timezone
 from airflow.utils.state import DagRunState
 from airflow.utils.types import DagRunType
 
-
-
 from airflow.settings import Session
 from airflow.utils import timezone
 from airflow.utils.state import State
@@ -37,7 +35,7 @@ from airflow.configuration import conf
 __all__ = ['tapd_enhanced_trigger_dag']
 
 
-def _customize_xcom(dag_id, run_id, execution_date, params):
+def _params_to_xcom(dag_id, run_id, execution_date, params):
 
     # tapd_
     prefix_text = conf.get('tapd', 'enhanced_trigger_xcom_key_prefix')
