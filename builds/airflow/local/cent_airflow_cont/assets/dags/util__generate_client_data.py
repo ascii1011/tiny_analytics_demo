@@ -10,6 +10,9 @@ until real sources can be built up.
 Overview:
  - build out basic workflow templating, abstraction, and support libraries
 """
+
+import os
+import random
 from datetime import datetime
 
 from airflow import DAG
@@ -17,46 +20,48 @@ from airflow.decorators import task
 from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
 
-# reusable utils and tools
-from workflow_lib import get_client_meta, extract_filename_args
-from bash_templates import extract_bash_cmd_tmpl, load_bash_cmd_tmpl
+args = {
+    "client_id": "lala",
+    "file_criteria": {
+        "files": 3,
+        "entries": 10,
+    },
+}   
 
-args = extract_filename_args(__file__)
-print(f'args: {args}')
 
-@task(task_id="client_meta")
-def client_meta(params):
-    return get_client_meta(params["client_id"])
+@task
+def process_client_data(params):
+    src = os.environ.get('CLIENT_SRC_FOLDER', '/opt')
+    dest = os.environ.get('CLIENT_INGESTION_FOLDER', '/opt').format(client_id=client_id)
 
-@task(task_id="transformation")
-def transformation(params):
-    print('transforming ... ')
+    filename_tmpl = "client_data_{}.txt"
+    line_header = "id,project,desc,data,date"
+    line_tmpl = "{},ctc,record{},231,2022-10-01T08:01:22Z"
 
-def get_url_params(**kwargs):
-    params = kwargs["ti"].xcom_pull_tapd()
-    print('tapd url params: {}'.format(params))
- 
+
+    for file_index in range(params["file_criteria"]["num_of_files"]):
+
+        # generate
+        with open(, w+) as f:
+
+        # move
+    
+
 with DAG(
-    dag_id=args["dag_id"], 
+    dag_id="util__generate_"+args["client_id"]+"_data", 
     start_date=datetime(2022, 10, 10), 
     schedule=None,
     catchup=False,
-    tags=args["tags"]) as dag:
+    tags=["util","lala", "generate_data"]
+) as dag:
 
-    get_client_meta = client_meta(args)
-                                                                                                                                                                                                                      
-    extract = BashOperator(
-        task_id="extract",
-        bash_command=extract_bash_cmd_tmpl,
-        params=args)
 
-    transform = transformation(args)
-                                                                                                                                                                                                                     
-    load = BashOperator(
-        task_id="load",
-        bash_command=load_bash_cmd_tmpl,
-        params=args)
+    # base task
 
-    # Set dependencies between tasks                                                                                                                                                                                                                          
-    get_client_meta >> extract >> transform >> load
+    process_data = process_client_data(args)
+    
+    # end task
+
+
+    base >> process_client_data >> end
 
