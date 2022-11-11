@@ -1,4 +1,5 @@
 
+"""General utility library to support DAGs"""
 
 from pathlib import Path
 
@@ -25,8 +26,14 @@ def get_client_meta(client):
 
 
 def extract_filename_args(_filename):
+    """Attempt to extract args from DAG.__file__
+
+    Args:
+    _filename: str: __file__
+    Return: dict
+    """
     dag_type = client_id = project_id = workflow_id = file_basename = None
-    
+    args = {}
     try:
         file_basename = Path(_filename).stem
 
@@ -35,7 +42,6 @@ def extract_filename_args(_filename):
         if len(filename_parts) == 4:
 
             if file_basename.startswith("client__"):
-                client_dag_id_tmpl = "{client_id}_{project_id}_{workflow_id}"
             
                 dag_type, client_id, project_id, workflow_id = file_basename.split('__')
 
@@ -48,19 +54,23 @@ def extract_filename_args(_filename):
                 
                 args.update({
                     "tags": args.values(),
-                    "dag_id": client_dag_id_tmpl.format(**file_basename)
+                    "dag_id": file_basename
                 })
 
         if len(filename_parts) == 2:
 
             if file_basename.startswith("util__"):
 
-
-
+                args = {
+                    "dag_id": file_basename
+                }
     
     except:
         pass
 
     finally:
-
         return args
+
+
+if __name__ == "__main__":
+    pass

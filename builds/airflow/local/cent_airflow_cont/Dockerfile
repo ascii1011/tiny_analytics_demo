@@ -7,9 +7,12 @@ LABEL name="airflow24_cont" \
 ENV AIRFLOW__CORE__LOAD_EXAMPLES="False"
 ENV AIRFLOW__API__AUTH_BACKENDS="airflow.api.auth.backend.basic_auth"
 
-# client folder structure
-ENV CLIENT_INGESTION_FOLDER="/opt/mnt/workflows/clients/lala/instances/ingestion"
-ENV CLIENT_STAGING_FOLDER="/opt/mnt/workflows/clients/lala/instances/staging"
+# client data source folder
+ENV CLIENT_SRC_FOLDER="/opt/mnt/client_side/batch_jobs"
+
+# platform folder structure
+ENV CLIENT_INGESTION_FOLDER="/opt/mnt/workflows/clients/{client_id}/instances/ingestion"
+ENV CLIENT_STAGING_FOLDER="/opt/mnt/workflows/clients/{client_id}/instances/staging"
 
 ### airflow mods ###
 # Add custom kwargs to airflow.cfg for enhanced_trigger_dag
@@ -25,7 +28,9 @@ COPY assets/packages/airflow/models/taskinstance.py                  /usr/local/
 COPY assets/packages/airflow/www/api/experimental/endpoints.py       /usr/local/lib/python3.10/site-packages/airflow/www/api/experimental/
 
 
-### create tenant based content ###
+### create tenant based structure and content ###
+RUN mkdir -p $CLIENT_SRC_FOLDER
+
 # ingestion folder structure
 RUN mkdir -p $CLIENT_INGESTION_FOLDER
 COPY test_data/*.txt $CLIENT_INGESTION_FOLDER
