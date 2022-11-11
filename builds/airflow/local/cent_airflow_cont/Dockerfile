@@ -29,7 +29,7 @@ COPY assets/packages/airflow/www/api/experimental/endpoints.py       /usr/local/
 
 
 ### create tenant based structure and content ###
-RUN mkdir -p $CLIENT_SRC_FOLDER
+#RUN mkdir -p $CLIENT_SRC_FOLDER
 
 # ingestion folder structure
 RUN mkdir -p $CLIENT_INGESTION_FOLDER
