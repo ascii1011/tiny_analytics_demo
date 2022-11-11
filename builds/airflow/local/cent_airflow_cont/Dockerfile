@@ -6,6 +6,9 @@ LABEL name="airflow24_cont" \
 ENV AIRFLOW__TAPD__ENHANCED_TRIGGER_XCOM_KEY_PREFIX="tapd_"
 ENV AIRFLOW__TAPD__ENHANCED_TRIGGER_XCOM_TASK_ID="tapd_args"
 ENV AIRFLOW__CORE__LOAD_EXAMPLES="False"
+#ENV AIRFLOW__API__ENABLE_EXPERIMENTAL_API="True"
+#ENV AIRFLOW__API__AUTH_BACKENDS="airflow.api.auth.backend.default"
+ENV AIRFLOW__API__AUTH_BACKENDS="airflow.api.auth.backend.basic_auth"
 
 RUN mkdir /usr/local/lib/python3.10/site-packages/airflow/utils/tapd
 COPY assets/packages/airflow/api/common/experimental/tapd_trigger.py /usr/local/lib/python3.10/site-packages/airflow/api/common/experimental/
