@@ -7,7 +7,7 @@ source env_vars.sh
 # run new container from iamge
 echo "sudo docker run -d ${PORT_MAP} --name ${CONTAINER_NAME} ${IMAGE_NAME}"
 echo "sudo docker exec -it ${CONTAINER_NAME} /bin/bash"
-sudo docker run -d $PORT_MAP --name $CONTAINER_NAME $IMAGE_NAME
+sudo docker run -d $PORT_MAP --env-file=env_vars.sh --name $CONTAINER_NAME $IMAGE_NAME
 
 echo ""
 echo "docker top:"

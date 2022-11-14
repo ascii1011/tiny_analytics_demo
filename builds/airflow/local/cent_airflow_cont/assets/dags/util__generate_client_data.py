@@ -99,8 +99,7 @@ with DAG(
     dag_id="util__generate_"+args["client_id"]+"_data", 
     start_date=datetime(2022, 10, 10), 
     schedule=None,
-    catchup=False,
-    tags=["util", args["client_id"], "generate_data"]
+    catchup=False
 ) as dag:
 
     process_data = process_client_data(args)

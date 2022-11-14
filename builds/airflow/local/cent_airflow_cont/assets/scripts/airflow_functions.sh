@@ -1,5 +1,3 @@
-
-
 #!/bin/bash
 
 function update_login_env_variables {

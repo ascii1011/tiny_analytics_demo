@@ -3,26 +3,21 @@
 
 from pathlib import Path
 
-__all__ = ['get_client_meta', 'extract_filename_args']
+__all__ = ['get_account_meta', 'extract_filename_args']
 
 
-def get_client_meta(client):
-    """Fake db abstraction"""
+def get_account_meta(client_id):
+    """Fake db abstraction to get account meta"""
     client_meta = {
         "lala": {
             "id": 100,
             "name": "LaLA LLC.",
             "owner": "lala",
-            "project_id": [
-                {
-                    "id": "ctc", 
-                    "task_params": {"var8": "888"}
-                },
-            ]
+            "project_meta": {"ctc": {"var8": "888"}},
         }
     }
 
-    return client_meta.get(client, {})
+    return client_meta.get(client_id, {})
 
 
 def extract_filename_args(_filename):
