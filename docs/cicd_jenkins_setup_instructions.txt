@@ -138,7 +138,7 @@ In Jenkins UI (dashboard) ->
 Create simple job using agent
 
 Steps:
-In Jenkins UI (dashboard) ->
+In Jenkins UI (dashboard) -> http://localhost:8100/
 (left) New Items ->
 (main) [general] tab:
   first list of checkboxes:

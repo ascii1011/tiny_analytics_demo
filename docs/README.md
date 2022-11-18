@@ -17,10 +17,82 @@
 
 ## todo
 - finish the client-side dag: generates files/zip, sends files, triggers specific target dag
-- 
 - convert docker to docker-compose for airflow+posgresql only so we can use the next level executor
   - local distributed vs cloud ... hmm... version is a bigger turn around cycle and heavy for local testing at this point
 - adding resources... possibly (ldap, mongo, hdfs, hive(pig), juypter)
+
+
+## Goals
+My goal is to eventually have it deployed to AWS EC2 as a resilient piece-meal solution where clients can submit files for consumption(shiny api abstraction, Mr. Liang) and retrieve analytics feedback.
+And then promote it to AWS EKS or MWAA...
+
+APIs appear to be the new shiny thing all the kewl kids are using these days, so will this will be
+
+
+
+
+## My overall approach
+Because I will be the client as well as the staff that brings the project to life, I am 
+going to try to keep this as simple as possible although the possibilites are endless.
+
+I will kick this all off by stating: We somehow have a client(me) wanting a solution.
+I ask myself to describe the concept of the project, as it can give indicators for expectations. 
+
+
+==================== The project ====================
+
+## client(me) concept 
+"A flexible project that provides insights into my management, 
+design, archectural, and coding abilities."
+
+
+After serveral meetings with the client(myself) I gathered additional high-level requirements
+
+## client requirements
+ - limited budget and time
+ - basic solution expectations:
+    - a small analytics platform locally hosted for now
+        - Should be able to test ETL jobs.
+        - Assume knowledge of data and ignore historical element for now (i.e. onboarding client data)
+ - target audience: Recruiters, engineers, and even CTOs
+ - cloud build possible in future
+
+ 
+## specifications
+ - localhost platform: docker-compose
+ - ETL Scheduler: Apache Airflow + postgres image (POC only, not scaled out yet)
+ - file process/location TBD (local)
+ - Staging scenario only for now
+
+
+
+==================== The Team ====================
+
+## Roles
+A translation of the specifications could be broken down to the following roles:
+
+### Technical project manager 
+ - Use open source and off the shelf solutions while possible
+ - Possibly use clickup.com as the project management.
+ - Possibly use Jenkins as CICD tool.
+
+### Platform Engineer duties
+ - local/AWS environment
+ - Data Stores
+ - cicd process
+ - may including Bash and Docker syntax
+
+### Data Engineer duties
+ - create build/deployment of single airflow instance
+ - create ETL workflows orchestration
+ - may include Python, Bash, and docker syntax
+
+### Software Engineer duties
+ - customize libraries, extensions, and access for workflows, security, and access
+ - may include Python, Bash, html, jinja, javascript, & CSS
+
+
+
 
 ## considerations
 For realistic scenarios to be reproduced I do need to provide a reasonable amount of various depths of knowledge, understanding, planning, and implemented.
@@ -54,5 +126,6 @@ How might we:
    - automate ingestion on regular cycles afterwards
    - what type of processing?
 
+ - build / maintain / migrate in the future...?  appears to be a huge revolving issue as clients ask for increasingly more types of processing
 
 All this stuff is being manually created at the moment with some templating, but boatloads of automation, access, abstraction, and resources still needs to be created and stitched together. 

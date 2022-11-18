@@ -2,74 +2,56 @@
 
 Author: Christopher Harty / Date: Oct 2022
 
-## Warning
-This repository is meant to be a demo to show talent only and not meant for production use.
-Use at your own risk.
+!!! UNDER CONSTRUCTION !!!
 
-## Purpose of this project
-To showcase a good portion of my abilities by working through a project at all levels.
-So, it will be a project within a project.  
+## Warning (do not run this unless you know what your doing)
+* This repository is meant to be a demo to show talent only and not meant for production use.
+* This project will grow rapidly and so will resource requirements.
+* Running this project may cause unwanted results if resources are not carefully considered.
+* I make no guarantees and am not claiming this will work for anyone else.  Use at your own risk.
 
-## My overall approach
-Because I will be the client as well as the staff that brings the project to life, I am 
-going to try to keep this as simple as possible although the possibilites are endless.
+## Purpose of this repo
+To showcase a good portion of my abilities by working through a project at all levels, (from basic local to cloud distributed).
+So, it will be a project within a project.  Cadence may vary :)  
 
-I will kick this all off by stating: We somehow have a client(me) wanting a solution.
-I ask myself to describe the concept of the project, as it can give indicators for expectations. 
+## Basic plan of attack
+Continuously gather requirements, build, test, deploy... all while documenting the goal (moving target), roles, process/methods, etc.
 
-
-==================== The project ====================
-
-## client(me) concept 
-"A flexible project that provides insights into my management, 
-design, archectural, and coding abilities."
+Containers currently run locally on the following ports:
+ - airflow @ http://localhost:8080/
 
 
-After serveral meetings with the client(myself) I gathered additional high-level requirements
+## Stand it up
+This will change over time.  
+ - current: 
+    - stand-a-lone docker for airflow POC
+    - basic pass through args/envs, applying basic customizations, and POC workflow concept
+ - next phase
+    - airflow + postgres within docker compose
+    - add bigger workflow (TDB)
 
-## client requirements
- - limited budget and time
- - basic solution expectations:
-    - a small analytics platform locally hosted for now
-        - Should be able to test ETL jobs.
-        - Assume knowledge of data and ignore historical element for now (i.e. onboarding client data)
- - target audience: Recruiters, engineers, and even CTOs
- - cloud build possible in future
+### centos base image
+`
+$ project_root
+$ cd builds/airflow/local/centos8_base
+$ ./rebuild_image.sh
+`
 
- 
-## specifications
- - localhost platform: docker-compose
- - ETL Scheduler: Apache Airflow + postgres image (POC only, not scaled out yet)
- - file process/location TBD (local)
- - Staging scenario only for now
+### airflow base image (extends centos base)
+`
+$ project_root
+$ cd builds/airflow/local/cent_airflow_base
+$ ./rebuild_image.sh
+`
 
+### airflow custom image/container (extends airflow base)
+`
+$ project_root
+$ cd builds/airflow/local/cent_airflow_cont
+$ ./rebuild_image.sh
+$ ./run_container.sh
+`
 
-
-==================== The Team ====================
-
-## Roles
-A translation of the specifications could be broken down to the following roles:
-
-### Technical project manager 
- - Use open source and off the shelf solutions while possible
- - Possibly use clickup.com as the project management.
- - Possibly use Jenkins as CICD tool.
-
-### Platform Engineer duties
- - local/AWS environment
- - Database
- - cicd process
- - may including Bash and Docker syntax
-
-### Data Engineer duties
- - create build/deployment of single airflow instance
- - create ETL workflows orchestration
- - may include Python, Bash, and docker syntax
-
-### Software Engineer duties
- - customize libraries, extensions, and access for workflows, security, and access
- - may include Python, Bash, html, jinja, javascript, & CSS
-
-
+- Check out the docs for more information
 
 
