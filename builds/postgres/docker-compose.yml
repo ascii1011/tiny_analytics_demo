@@ -1,0 +1,26 @@
+version: '3.7'
+services:
+  pg:
+    container_name: postgres12
+    image: postgres:12.2-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGDATA: ${PGDATA}
+    volumes:
+      - ~/dev/mnt_data/tiny_analytics_platform/pgdata_main:${PGDATA}
+    ports:
+      - '5432:5432'
+    restart: unless-stopped
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+    networks:
+      - default
+
+networks:
+  default:
+    external:
+      name: ${NETWORK}

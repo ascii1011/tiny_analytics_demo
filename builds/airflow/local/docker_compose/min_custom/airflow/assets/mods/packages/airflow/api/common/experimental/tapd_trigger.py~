@@ -1,0 +1,166 @@
+### airflow/api/common/experimental/tapd_trigger.py ###
+
+"""
+Custom trigger dag feature 
+modeled from '/trigger'
+
+By:               Christopher R Harty
+Created:          Oct 2022
+Compatible with:  Apache Airflow 2.4.2
+"""
+
+import json
+
+from airflow.configuration import AIRFLOW_HOME, WEBSERVER_CONFIG, conf  # NOQA F401
+from airflow.exceptions import DagRunAlreadyExists, DagNotFound, AirflowException
+from airflow.models import XCom, DagBag, DagRun
+from airflow.settings import Session
+from airflow.utils import timezone
+from airflow.utils.state import State
+
+enhanced_trigger_key = conf.get('custom', 'enhanced_trigger_key')
+
+__all__ = ['tapd_enhanced_trigger_dag']
+
+def pull_dag(dag_id):
+    """return a dag object from a dag_id if it exists"""
+    dag_bag = DagBag()
+
+    if dag_id not in dag_bag.dags:
+        raise DagNotFound("Dag id {} not found".format(dag_id))
+
+    return dag_bag.get_dag(dag_id)
+
+def check_dagrun_unique(dag_id, run_id):
+    """if dagrun exists, raise duplicate err"""
+    dag_run = DagRun()
+    dr = dag_run.find(dag_id=dag_id, run_id=run_id)
+
+    if dr:
+        raise DagRunAlreadyExists("Run id {} alrready exists for dag id {}".format(
+            run_id,
+            dag_id
+        ))
+
+def tapd_enhanced_trigger_dag(dag_id, request):
+    custom_task_id = "cash_args"
+    prefix_text = "cash_"
+    response = {
+        "xcom": {}
+    }
+
+    dag = pull_dag(dag_id)
+
+    execution_date = timezone.utcnow()
+    assert timezone.is_localized(execution_date)
+
+    run_id = None
+    run_id = "manual__{0}".format(execution_date.isoformat())
+
+    check_dagrun_unique(dag_id, run_id)
+
+    response.update({'run_id': run_id})
+    session = Session()
+    for k in request.args:
+        if k.startwith(prefix_text):
+            try:
+                p = {
+                    "key": k.replace(prefix_text, ""),
+                    "value": json.dumps(request.args.get(k)).encode('UTF-8'),
+                    "execution_date": execution_date,
+                    "task_id": custom_task_id,
+                    "dag_id": dag_id,
+                }
+                
+                json_friendly_p = {
+                    "key": k.replace(prefix_text, ""),
+                    "value": request.args.get(k),
+                    "execution_date": execution_date,
+                    "task_id": custom_task_id,
+                    "dag_id": dag_id,
+                }
+                response[k] = json_friendly_p
+                session.add(XCom( **p ))
+
+            except Exception as e:
+                print('package xcom err: {}'.format(str(e)))
+
+    session.commit()
+
+    session = Session()
+    xcomlist = []
+    try:
+        xcomlist = session.query(XCom).filter(
+            XCom.dag_id == dag_id,
+            XCom.task_id == custom_task_id,
+            XCom.execution_date = execution_date).all()
+
+    except Exception as e:
+        print('xcomlist err: {}'.format(str(e)))
+        raise AirflowException(e)
+
+    session.commit()
+
+    for xcom in xcomlist:
+        if not xcom.key.startswith('_'):
+            response["xcom"][xcom.key] = str(xcom.value)
+
+    dag.create_dagrun(
+        run_id=run_id,
+        execution_date=execution_date,
+        state=State.RUNNING,
+        conf={},
+        external_trigger=True,
+    )
+
+    return response
+
+
+
+
+
+    
+
+    dr = DagRun.find(dag_id=dag_id, run_id=run_id)
+    if dr:
+        return custom_params.update( {'error': 'This run_id {} already exists'.format(run_id) } )
+
+    custom_params = {'run_id': run_id}
+    ### find and set all prefix inputs as XCom params ###
+    for k,v in request.args.iteritems():
+        if k.startswith(prefix_text):
+            p = {
+                "key": k.replace(prefix_text,''),
+                "value": v,
+                "execution_date": execution_date,
+                "task_id": custom_task_id,
+                "dag_id": dag_id,
+            }
+
+            custom_params[k] = p
+
+            # insert new XCom
+            session.add(XCom( **p ))
+
+    session.commit()
+
+    xcomlist = session.query(XCom).filter(
+        XCom.dag_id == dag_id,
+        XCom.task_id == custom_task_id,
+        XCom.execution_date == execution_date
+    ).all()
+
+    custom_params["xcoms"] = {}
+    for xcom in xcomlist:
+        if not xcom.key.startswith('_'):
+            custom_params["xcoms"][xcom.key] = str(xcom.value)
+
+    dag.create_dagrun(
+        run_id=run_id,
+        execution_date=execution_date,
+        state=State.RUNNING,
+        conf={},
+        external_trigger=True
+    )
+
+    return custom_params

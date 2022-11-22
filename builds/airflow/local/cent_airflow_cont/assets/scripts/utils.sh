@@ -72,8 +72,8 @@ function airflow_create_user {
     airflow users create \
         --username admin \
         --password airflow \
-        --firstname Chris \
-        --lastname Harty \
+        --firstname twig \
+        --lastname derp \
         --role Admin \
-        --email ascii1011@gmail.com
+        --email some@gmail.com
 }

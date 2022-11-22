@@ -1,0 +1,39 @@
+# Basic Airflow cluster configuration for CeleryExecutor with Redis and PostgreSQL.
+# WARNING: This configuration is for local development. Do not use it in a production deployment.
+---
+version: '3.8'
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - ~/dev/mnt_data/tiny_analytics_platform/min_custom/postgresql/data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      retries: 5
+    restart: always
+  airflow:
+    build: ./airflow
+    environment:
+      - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=True
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__API__ENABLE_EXPERIMENTAL_API=True
+      - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth
+    ports:
+      - 8251:8080
+    volumes:
+      - ./assets/dags:/opt/airflow/dags
+      - ./assets/bigdata_pylib:/opt/mnt/bigdata/pylib
+      - ~/dev/mnt_data/tiny_analytics_platform/min_custom/airflow/logs:/opt/airflow/logs
+    depends_on: 
+      - postgres
+    restart: always
+
+

@@ -21,7 +21,7 @@ Containers currently run locally on the following ports:
  - airflow @ http://localhost:8080/
 
 
-## Stand it up
+## Stand it up local custom airflow 2.4.2
 This will change over time.  
  - current: 
     - stand-a-lone docker for airflow POC
@@ -30,28 +30,42 @@ This will change over time.
     - airflow + postgres within docker compose
     - add bigger workflow (TDB)
 
-### centos base image
+
+### Step 1 - Create the images
+ - centos base image
 `
-$ project_root
+ // from project root
 $ cd builds/airflow/local/centos8_base
-$ ./rebuild_image.sh
+$ ./rebuild_image.sh (builds image: cent8py310_base)
 `
 
-### airflow base image (extends centos base)
+ - airflow base image (extends centos base)
 `
-$ project_root
+ // from project root
 $ cd builds/airflow/local/cent_airflow_base
-$ ./rebuild_image.sh
+$ ./rebuild_image.sh (builds image: c8py3_airflow24_base)
 `
 
-### airflow custom image/container (extends airflow base)
+### Step 2 - Pick a deploy option
+ - [option1] standalone airflow + some customizations (minimal) (airflow custom image/container - extends airflow base)
 `
-$ project_root
+ // from project root
 $ cd builds/airflow/local/cent_airflow_cont
-$ ./rebuild_image.sh
-$ ./run_container.sh
+$ ./rebuild_image.sh (builds image: img_airflow24)
+$ ./run_container.sh (deploys container: con_airflow24, port: 8080, db: sqlite, SequentialExecutor)
 `
 
-- Check out the docs for more information
+ - [option2] docker-compose options
+
+ -- [min_custom] airflow[8251]+pgsql+custom dev
+ `
+ // from project root
+ cd builds/airflow/local/docker_compose/min_custom
+ docker-compose -d up
+ `
+
+
+
+* Check out the docs for more information
 
 
