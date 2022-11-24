@@ -11,17 +11,110 @@ from pathlib import Path
 
 import logging
 
-__all__ = ['get_account_meta', 'extract_filename_args', 'generate_client_files', 'display_dir_content']
+__all__ = ['get_account_meta', 'extract_filename_args', 'generate_client_files', 'display_dir_content','get_dag_context']
 
 log = logging.getLogger(__name__)
 
 
-def gen_batch_id():
+def get_dag_context(input_str):
+    """abstraction to...
+    
+    - break down dag filename to grab client_id and project_id
+    - return dag meta from db from project_id and workflow type
+    
+    """
+
+    client_meta = {
+        "client_id": "lala",
+        "project_id": "ctc",
+        "file_criteria": {
+            "files": (5,10),
+            "entries": (20,30),
+            "values": (100,50000),
+        },
+    }   
+
+    dag_id = Path(input_str).stem
+    
+    client_meta.update({
+        "dag_id": dag_id,
+    })
+
+    return client_meta
+
+def gen_batch_id(size=24):
     utc = datetime.utcnow()
-    return hashlib.md5(utc.strftime("%Y%m%d%H%M%S%f").encode('utf-8')).hexdigest()[:24]
+    return hashlib.md5(utc.strftime("%Y%m%d%H%M%S%f").encode('utf-8')).hexdigest()[:size]
+
+
     
 
-def generate_client_files(args):
+def generate_client_files(client_id, project_id, batch_id, file_criteria):
+    filename_tmpl = "{client_id}_{project_id}_{batch_id}_{file_id}.txt"
+    files = []
+
+    line_arg_tmpl = {
+        "client_id": client_id,
+        "project_id": project_id,
+        "batch_id": batch_id,
+        "file_id": "",
+    }
+
+    batch_src_path = os.path.join(os.environ.get("CLIENT_BATCH_ROOT"), batch_id)
+    print(f"batch_src_path: {batch_src_path}")
+    
+    batch_dest_path = os.path.join(os.environ.get("INGESTION_ROOT"), client_id, project_id, batch_id)
+    print(f"batch_dest_path: {batch_dest_path}")
+
+    resp = {
+        "files": [],
+        "src_path": batch_src_path,
+        "dest_path": batch_dest_path,
+        "errors": [],
+    }
+
+    for file_id in range(random.randint(*file_criteria["files"])):
+        line_args = line_arg_tmpl.copy()
+        line_args.update({"file_id": file_id})
+        file_name = filename_tmpl.format(**line_args)
+        files.append(file_name)
+        full_file_path = os.path.join(batch_src_path, file_name)
+
+        print(f"generating: {full_file_path}")
+
+        with open(full_file_path, 'w+') as f:
+            line_header = "id,project,desc,data,date"
+            print(f" . -{line_header}")
+            f.write("{}\n".format(line_header))
+            for line_id in range(random.randint(*file_criteria["entries"])):
+                #print('generate_line({}, {})'.format(line_id, args["file_criteria"]["values"]))
+                line = generate_line(line_id, file_criteria["values"])
+                print(f"  -{line}")
+                f.write("{}\n".format(line))
+
+        try:
+            src_file = os.path.join(batch_src_path, file_name)
+            dest_file = os.path.join(batch_dest_path, file_name)
+            print(f"cp {src_file} {dest_file}")
+            shutil.copyfile(src_file, dest_file)
+            resp["files"].append({"file": file_name, "status": "copied"})
+
+        except Exception as e:
+            resp["files"].append({"file": file_name, "status": f"error{e}"})
+            
+
+    print("\n\n### Temporarily copy directly from client data source to platform ingestion area")
+    copy_files(batch_src_path, batch_dest_path, files)
+
+    print('-')
+    print(f'batch_id({batch_id})')
+    print('-')
+
+    display_dir_content(batch_dest_path)
+
+    
+
+def generate_client_files_v2(args):
     filename_tmpl = "{client_id}_{project_id}_{batch_id}_{file_id}.txt"
     files = []
 
@@ -70,9 +163,12 @@ def generate_client_files(args):
 
     return batch_src_path, batch_dest_path
 
-def display_dir_content(path, desc):
-    print(f"##[{desc}] ls {path}")
+def display_dir_content(path, desc="folder content:"):
+    print("$")
+    print(f"$ ls {path}")
     for (root, dirs, file) in os.walk(path):
+        for _dir in dirs:
+            print(f"d: {_dir}/")
         for f in file:
             print(f)
 
