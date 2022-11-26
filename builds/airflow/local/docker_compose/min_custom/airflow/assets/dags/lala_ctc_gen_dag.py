@@ -20,7 +20,8 @@ from airflow.exceptions import AirflowFailException
 # use to fail a task, but with option for retries later
 #from airflow import AirflowException
 
-from workflow_lib import gen_batch_id, get_dag_context, display_dir_content, generate_client_files
+from workflow_lib import gen_batch_id, get_dag_context, display_dir_content, generate_client_files, copy_files
+from bash_templates import compress_bash_cmd_tmpl
 
 # A DAG represents a workflow, a collection of tasks #
 with DAG(dag_id="lala_ctc_generating_data", start_date=datetime(2022, 11, 9), schedule=None) as dag:
@@ -35,13 +36,6 @@ with DAG(dag_id="lala_ctc_generating_data", start_date=datetime(2022, 11, 9), sc
     @task()
     def batch_id():
         return gen_batch_id(6)
-
-    @task()
-    def airflow(ti=None):
-        client = ti.xcom_pull(task_ids="client")
-        print(f"client: {client}")
-        batch_id = ti.xcom_pull(task_ids="batch_id")
-        print(f"batch_id: {batch_id}")
 
     @task()
     def create_batch_folder(ti=None):
@@ -123,7 +117,26 @@ with DAG(dag_id="lala_ctc_generating_data", start_date=datetime(2022, 11, 9), sc
         batch_id = ti.xcom_pull(task_ids="batch_id")
         generate_client_files(client_id, project_id, batch_id, file_criteria)
         
+    
+    # Tasks are represented as operators
+    compress = BashOperator(
+        task_id="compress_file",
+        bash_command=compress_bash_cmd_tmpl)
         
+    @task()
+    def send_files(ti=None):
+        compress_file = ti.xcom_pull(task_ids="compress_file")
+
+        batch_src_path = os.path.join(os.environ.get("CLIENT_BATCH_ROOT"), batch_id)
+        print(f"batch_src_path: {batch_src_path}")
+        
+        batch_dest_path = os.path.join(os.environ.get("INGESTION_ROOT"), client_id, project_id, batch_id)
+        print(f"batch_dest_path: {batch_dest_path}")
+
+        print("\n\n### Temporarily copy directly from client data source to platform ingestion area")
+        copy_files(batch_src_path, batch_dest_path, [compress_file,])
+
+        display_dir_content(batch_dest_path)
 
     # Set dependencies between tasks
-    intro >> client() >> batch_id() >> airflow() >> create_batch_folder() >> create_ingestion_folder() >> generate_files()
+    intro >> client() >> batch_id() >> create_batch_folder() >> create_ingestion_folder() >> generate_files() >> compress

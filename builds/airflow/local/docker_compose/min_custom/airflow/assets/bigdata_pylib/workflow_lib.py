@@ -11,7 +11,10 @@ from pathlib import Path
 
 import logging
 
-__all__ = ['get_account_meta', 'extract_filename_args', 'generate_client_files', 'display_dir_content','get_dag_context']
+__all__ = [
+    'get_account_meta', 'get_project_meta', 'extract_filename_args', 
+    'generate_client_files', 'display_dir_content','get_dag_context',
+    'copy_files']
 
 log = logging.getLogger(__name__)
 
@@ -103,14 +106,11 @@ def generate_client_files(client_id, project_id, batch_id, file_criteria):
             resp["files"].append({"file": file_name, "status": f"error{e}"})
             
 
-    print("\n\n### Temporarily copy directly from client data source to platform ingestion area")
-    copy_files(batch_src_path, batch_dest_path, files)
+    #print("\n\n### Temporarily copy directly from client data source to platform ingestion area")
+    #copy_files(batch_src_path, batch_dest_path, files)
+    #display_dir_content(batch_dest_path)
 
-    print('-')
-    print(f'batch_id({batch_id})')
-    print('-')
-
-    display_dir_content(batch_dest_path)
+    display_dir_content(batch_src_path, "client-side: batch_src_path")
 
     
 
@@ -180,6 +180,7 @@ def generate_line(line_id, values):
         dte=utc.strftime("%Y-%m-%dT%H:%M:%S.%f")
     )
 
+
 def copy_files(src, dest, files):
 
     for _file in files:
@@ -200,18 +201,49 @@ def get_client_ingestion_path(execution_date, project_id, client_id, client_data
     )
 
 
+def get_project_meta(client_id, project_id):
+    return get_account_meta(client_id)["project_meta"].get(project_id, {})
+
 def get_account_meta(client_id):
-    """Fake db abstraction to get account meta"""
-    client_meta = {
+    """Platform side db holding
+    
+    Fake db abstraction to get account meta
+    """
+
+    return platform_db().get(client_id, {"id": 0})
+
+def platform_db():
+    return {
         "lala": {
             "id": 100,
             "name": "LaLA LLC.",
             "owner": "lala",
-            "project_meta": {"ctc": {"var8": "888"}},
+            "project_meta": {
+                "ctc": {
+                    "file_format": {
+                        "extension": ".txt",
+                        "headers": ["id","project","desc","data","date"],
+                        "header_exists": True,
+                        "field_types": ["increment", "str-5", "str-20, int-10, dtef"],
+                    },
+                    "workflow_action_order": {
+                        "etl": ["extract"],
+                    },
+                    "actions": {
+                        "extract": {
+                            "unzip": True,
+                            "dest": "hdfs",
+                        },
+                        "validate": {
+                            "field": "project",
+                        }
+                    },
+                }
+            },
         }
     }
 
-    return client_meta.get(client_id, {})
+
 
 
 def extract_filename_args(_filename):
@@ -222,15 +254,17 @@ def extract_filename_args(_filename):
     Return: dict
     """
     dag_type = client_id = project_id = workflow_id = file_basename = None
-    args = {}
+    file_basename = Path(_filename).stem
+
+    args = {"dag_id": file_basename}
     try:
-        file_basename = Path(_filename).stem
+        
 
         # route per dag_type (i.e. util, client, etc...)
         filename_parts = file_basename.split('__')
         if len(filename_parts) == 4:
 
-            if file_basename.startswith("client__"):
+            if file_basename.startswith("tenant__"):
             
                 dag_type, client_id, project_id, workflow_id = file_basename.split('__')
 
