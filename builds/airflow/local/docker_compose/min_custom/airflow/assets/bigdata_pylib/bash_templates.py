@@ -1,4 +1,11 @@
 
+"""
+
+        client_id = 
+        project_id = 
+        batch_id = ti.xcom_pull(task_id="context", key="batch_id")
+        file_criteria = ti.xcom_pull(task_id="context", key="file_criteria")
+"""
 __all__ = ['extract_bash_cmd_tmpl', 'load_bash_cmd_tmpl', 'compress_bash_cmd_tmpl']
 
 tmpl = """
@@ -9,30 +16,41 @@ echo "[xcom] workflow: '{{ ti.xcom_pull(task_ids=\'context\', key=\'workflow\') 
 
 compress_bash_cmd_tmpl="""
 #tar -zcvf airflow_extensions.tar.gz extensions/
-TARGET_FILENAME="{{ params.client_id }}_{{ params.project_id }}_{{ params.batch_id }}.tar.gz"
+TARGET_FILENAME={{ ti.xcom_pull(task_ids="context", key="targz_file") }}
 
-SRC_PATH={{ ti.xcom_pull(task_ids=['create_batch_folder']) }}
+SRC_PATH={{ ti.xcom_pull(task_ids='context', key='batch_src_path') }}
 
 echo "tar -zcvf ${TARGET_FILENAME} ${SRC_PATH}"
-tar -zcvf $SRC_PATH/$TARGET_FILENAME.tar.gz $SRC_PATH/
+tar -zcvf $SRC_PATH/$TARGET_FILENAME $SRC_PATH/
 ls -alht $SRC_PATH/
+
+echo $SRC_PATH
 """
 
-extract_bash_cmd_tmpl="""
-FILE="{{ params.client_id }}_{{ params.project_id }}_{{ params.batch_id }}.tar.gz"
+extract_bash_cmd_tmpl=""" 
+FILE="{{ ti.xcom_pull(task_ids='context', key='targz_filename') }}"
 echo "file: ${FILE}"
 
-INGEST="${INGESTION_ROOT}/{{ params.client_id }}/{{ params.project_id }}/{{ params.batch_id }}"
+echo "======"
+INGEST="{{ ti.xcom_pull(task_ids='context', key='ingestion_path') }}"
 echo "ingest: ${INGEST}"
 
+echo "======"
 INGEST_FILE_PATH="${INGEST}/${FILE}"
 echo "INGEST_FILE_PATH: ${INGEST_FILE_PATH}"
 
-STAGING="${STAGING_ROOT}/{{ params.client_id }}/{{ params.project_id }}/{{ params.batch_id }}"
-echo "staging: ${STAGING}"
+echo "======"
+echo "mkdir ${INGEST}/extract"
+mkdir $INGEST/extract
 
-DEST_FILE_PATH="${STAGING}/extract"
-echo "DEST_FILE_PATH: ${DEST_FILE_PATH}"
+echo "======"
+echo "tar -xzvf ${INGEST_FILE_PATH} -C ${INGEST}/extract"
+tar -xzvf $INGEST_FILE_PATH -C $INGEST/extract
+
+echo "======"
+ls -alht $INGEST/extract
+
+echo ""===done===""
 """
 
 extract_bash_cmd_tmpl_test="""

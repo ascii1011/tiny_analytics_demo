@@ -95,15 +95,15 @@ def generate_client_files(client_id, project_id, batch_id, file_criteria):
                 print(f"  -{line}")
                 f.write("{}\n".format(line))
 
-        try:
-            src_file = os.path.join(batch_src_path, file_name)
-            dest_file = os.path.join(batch_dest_path, file_name)
-            print(f"cp {src_file} {dest_file}")
-            shutil.copyfile(src_file, dest_file)
-            resp["files"].append({"file": file_name, "status": "copied"})
-
-        except Exception as e:
-            resp["files"].append({"file": file_name, "status": f"error{e}"})
+        #try:
+        #    src_file = os.path.join(batch_src_path, file_name)
+        #    dest_file = os.path.join(batch_dest_path, file_name)
+        #    print(f"cp {src_file} {dest_file}")
+        #    shutil.copyfile(src_file, dest_file)
+        #    resp["files"].append({"file": file_name, "status": "copied"})
+        #
+        #except Exception as e:
+        #    resp["files"].append({"file": file_name, "status": f"error{e}"})
             
 
     #print("\n\n### Temporarily copy directly from client data source to platform ingestion area")
@@ -232,6 +232,7 @@ def platform_db():
                     "actions": {
                         "extract": {
                             "unzip": True,
+                            "tar_file_format": "{client_id}_{project_id}_{batch_id}.tar.gz",
                             "dest": "hdfs",
                         },
                         "validate": {
