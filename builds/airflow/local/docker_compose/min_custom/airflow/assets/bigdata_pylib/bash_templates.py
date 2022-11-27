@@ -20,8 +20,11 @@ TARGET_FILENAME={{ ti.xcom_pull(task_ids="context", key="targz_file") }}
 
 SRC_PATH={{ ti.xcom_pull(task_ids='context', key='batch_src_path') }}
 
-echo "tar -zcvf ${TARGET_FILENAME} ${SRC_PATH}"
-tar -zcvf $SRC_PATH/$TARGET_FILENAME $SRC_PATH/
+cd $SRC_PATH
+echo "tar -zcvf ${SRC_PATH}/${TARGET_FILENAME} *.txt"
+tar -zcvf $SRC_PATH/$TARGET_FILENAME *.txt
+#echo "tar -C ${SRC_PATH} -zcvf ${TARGET_FILENAME} ${SRC_PATH}"
+#tar -C $SRC_PATH -zcvf $SRC_PATH/$TARGET_FILENAME $SRC_PATH/
 ls -alht $SRC_PATH/
 
 echo $SRC_PATH
@@ -44,7 +47,7 @@ echo "mkdir ${INGEST}/extract"
 mkdir $INGEST/extract
 
 echo "======"
-echo "tar -xzvf ${INGEST_FILE_PATH} -C ${INGEST}/extract"
+echo "tar -xzvf ${INGEST_FILE_PATH} --strip-components=1 -C ${INGEST}/extract"
 tar -xzvf $INGEST_FILE_PATH -C $INGEST/extract
 
 echo "======"
