@@ -1,5 +1,8 @@
 #!/bin/bash
 
+chmod +x *.sh
+chmod +x *.py
+
 # build and apply envs
 ./process_env.py ~/.bash_profile
 

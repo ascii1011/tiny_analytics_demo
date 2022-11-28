@@ -146,8 +146,8 @@ function apply_all_resources {
 
     #display_airflow
 
-    apply_mod_resources
-    display_mods
+    #apply_mod_resources
+    #display_mods
 
     apply_client_resources
     display_client
@@ -169,5 +169,26 @@ function run_airflow {
     display_all_env
 
     ps_aux
+}
+
+
+function onboard {
+
+    source ~/.bash_profile
+
+    pip install -r requirements.txt
+
+    tree /opt/
+
+    display_all_env
+
+
+    apply_all_resources
+
+    # resources above have applied and re-sourced the ~/.bash_profile
+    # however this level of the bash script is out of that scope
+    source ~/.bash_profile
+
+    run_airflow
 }
 

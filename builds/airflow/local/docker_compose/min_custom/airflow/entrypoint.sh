@@ -1,32 +1,34 @@
 #!/bin/sh
 
-function airflow_create_user {
-    echo ""
-    echo "Creating user"
-    airflow users create \
-        --username admin \
-        --password airflow \
-        --firstname twig \
-        --lastname derp \
-        --role Admin \
-        --email some@gmail.com
-}
+#pip install -r requirements.txt
 
-echo ""
-echo "airflow db init"
+#function airflow_create_user {
+#    echo ""
+#    echo "Creating user"
+#    airflow users create \
+#        --username admin \
+#        --password airflow \
+#        --firstname twig \
+#        --lastname derp \
+#        --role Admin \
+#        --email some@gmail.com
+#}
 
-airflow db reset
+#echo ""
+#echo "airflow db init"
 
-airflow db init
+#airflow db reset
 
-airflow_create_user
+#airflow db init
 
-echo ""
-echo "starting webserver"
-nohup airflow webserver --port 8080 0<&- &> /opt/airflow/logs/webserver.log &
+#airflow_create_user
 
-echo "starting scheduler"
-nohup airflow scheduler 0<&- &> /opt/airflow/logs/scheduler.log &
+#echo ""
+#echo "starting webserver"
+#nohup airflow webserver --port 8080 0<&- &> /opt/airflow/logs/webserver.log &
 
-echo 'tailing...'
-tail -f /dev/null
+#echo "starting scheduler"
+#nohup airflow scheduler 0<&- &> /opt/airflow/logs/scheduler.log &
+
+#echo 'tailing...'
+#tail -f /dev/null

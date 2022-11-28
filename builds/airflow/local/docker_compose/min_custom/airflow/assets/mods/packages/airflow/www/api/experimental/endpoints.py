@@ -37,7 +37,7 @@ from airflow.utils.docs import get_docs_url
 from airflow.utils.strings import to_boolean
 from airflow.version import version
 
-from airflow.api.common experimental.tapd_trigger import tapd_enhanced_trigger_dag
+from airflow.api.common.experimental.tapd_trigger import tapd_enhanced_trigger_dag
 
 log = logging.getLogger(__name__)
 
