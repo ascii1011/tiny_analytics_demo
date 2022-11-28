@@ -14,9 +14,22 @@ import logging
 __all__ = [
     'get_account_meta', 'get_project_meta', 'extract_filename_args', 
     'generate_client_files', 'display_dir_content','get_dag_context',
-    'copy_files']
+    'copy_files', 'get_files_from_path', 'get_line_count_from_file']
 
 log = logging.getLogger(__name__)
+
+
+def get_line_count_from_file(file_path):
+    def _count_generator(reader):
+        b = reader(1024*1024)
+        while b:
+            yield b
+            b = reader(1024*1024)
+
+    with open(file_path, 'rb') as fp:
+        counter = _count_generator(fp.raw.read)
+        return sum(buffer.count(b'\n') for buffer in counter)
+        
 
 
 def get_dag_context(input_str):
@@ -163,6 +176,15 @@ def generate_client_files_v2(args):
 
     return batch_src_path, batch_dest_path
 
+def get_files_from_path(path):
+    files = []
+    for (root, dirs, file) in os.walk(path):
+        for f in file:
+            files.append(path+'/'+f)
+
+    return files
+    
+
 def display_dir_content(path, desc="folder content:"):
     print("$")
     print(f"$ ls {path}")
@@ -193,22 +215,18 @@ def get_client_ingestion_path(execution_date, project_id, client_id, client_data
     ex = "/opt/mnt/workflows/ingest/{client_id}/project_id}/{execution_date}"
     _path = f"{client_data_root}/{client_id}/{project_id}/{execution_date}"
 
-    return _path.format(
-        client_data_root=client_data_root,
-        client_id=client_id,
-        project_id=project_id,
-        execution_date=execution_date
-    )
+    return _path
 
 
+"""
 def get_project_meta(client_id, project_id):
     return get_account_meta(client_id)["project_meta"].get(project_id, {})
 
 def get_account_meta(client_id):
-    """Platform side db holding
+    #Platform side db holding
     
-    Fake db abstraction to get account meta
-    """
+    #Fake db abstraction to get account meta
+    
 
     return platform_db().get(client_id, {"id": 0})
 
@@ -244,7 +262,7 @@ def platform_db():
         }
     }
 
-
+"""
 
 
 def extract_filename_args(_filename):

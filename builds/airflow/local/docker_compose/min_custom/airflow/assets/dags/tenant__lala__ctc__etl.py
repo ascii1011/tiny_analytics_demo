@@ -14,7 +14,7 @@ from airflow.operators.bash import BashOperator
 from airflow.exceptions import AirflowFailException
 
 # reusable utils and tools
-from workflow_lib import get_project_meta, extract_filename_args
+from workflow_lib import extract_filename_args, get_files_from_path, get_line_count_from_file
 from mongodb_lib import platform_get_project_meta
 from bash_templates import extract_bash_cmd_tmpl, load_bash_cmd_tmpl
 
@@ -90,11 +90,46 @@ with DAG(
 
     # Copies data from ingestion area to staging and might extract if needed (zip, tar.gz, etc..)
     # typically data is not moved because of verification and historical purposes.  important is downstream data is lost (can replay)
-    op_extract = BashOperator(
-        task_id="extract",
+    op_untar = BashOperator(
+        task_id="untar",
         bash_command=extract_bash_cmd_tmpl,
         params=args)
 
+    @task
+    def tmp_persist_raw_db(): pass
+
+    @task
+    def tmp_persist_extract_db(): pass
+
+    @task
+    def tmp_transformation():
+        """normalize, transform, filter, validate"""
+        pass
+ 
+    @task
+    def tmp_load_to_bronze_db(): pass
+
+    @task
+    def list_filenames(ti=None):
+        ingest_path = ti.xcom_pull(task_ids="context", key="ingestion_path")
+        print(f'ingest_path: {ingest_path}')
+        extract_path = os.path.join(ingest_path, 'extract')
+
+        return get_files_from_path(extract_path)
+
+    @task
+    def count_lines(filename):
+        return get_line_count_from_file(filename)
+
+    @task
+    def total(lines):
+        return sum(lines)
+
+    counts = count_lines.expand(
+        filename=list_filenames()
+    )
+
+    
 
 
-    op_context  >> op_extract
+    op_context  >> op_untar >> tmp_persist_raw_db() >> tmp_persist_extract_db() >> tmp_transformation() >> tmp_load_to_bronze_db() >> total(lines=counts)
