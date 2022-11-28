@@ -3,9 +3,66 @@
 from pprint import pprint
 from pymongo import MongoClient
 
-__all__ = ["db_dig", "onboard_db"]
 
+platform_side_db_name = 'platform'
+platform_side_collection = 'clients'
+
+client_side_db_name = 'client_projects'
+client_side_collection = 'gen_project_files'
+
+__all__ = ["db_dig", "onboard_db", "client_get_file_criteria", "platform_get_project_meta"]
+
+# IMPORTANT NOTE: the 'mongo' within '@mongo:27017' is a container name reference from within the airflow container
 client = MongoClient('mongodb://mgadmin:mgpass@mongo:27017/?authSource=admin', directConnection=True)
+
+def platform_get_project_meta(_client, _project):
+    _db = platform_side_db_name
+    _collection = platform_side_collection
+    print(f"\ndb_dig(client: {_client})")
+    print(f"#db:{_db}, coll:{_collection}")
+    meta = {}
+    try:
+        with client:
+
+            db = client[_db]
+            #print('\tcollecting...')
+                       
+            docs = db[_collection].find({"name": _client}, {"project_meta": {_project:1},"_id": False})
+            #print(f"docs: {docs}")
+            doc = docs.next()
+            
+            meta = dict(doc["project_meta"][_project])
+            #print(f"meta: {meta}")
+            
+    except Exception as e:
+        print(f"error: {e}")
+    finally:
+        return meta
+
+def client_get_file_criteria(_client):
+    """
+    
+    return: dict
+    """
+
+    _db = client_side_db_name
+    _collection = client_side_collection
+    print(f"\ndb_dig(client: {_client})")
+    print(f"#db:{_db}, coll:{_collection}")
+    fc = {}
+    try:
+        with client:
+
+            db = client[_db]
+            print('\tcollecting...')
+            docs = db[_collection].find_one({"client_id": _client}, {"file_criteria":1,"_id": False})
+            fc = dict(docs["file_criteria"])
+            
+    except Exception as e:
+        print(f"error: {e}")
+    finally:
+        return fc
+
 
 def db_dig(_db, _collection, _limit=5):
     print(f"\ndb_dig(db:{_db}, coll:{_collection}, limit:{_limit})")

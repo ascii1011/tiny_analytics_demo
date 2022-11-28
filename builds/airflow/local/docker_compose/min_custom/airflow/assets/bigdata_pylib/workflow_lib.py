@@ -25,8 +25,6 @@ def get_dag_context(input_str):
     - break down dag filename to grab client_id and project_id
     - return dag meta from db from project_id and workflow type
     
-    """
-
     client_meta = {
         "client_id": "lala",
         "project_id": "ctc",
@@ -36,12 +34,14 @@ def get_dag_context(input_str):
             "values": (100,50000),
         },
     }   
+    """
+
 
     dag_id = Path(input_str).stem
     
-    client_meta.update({
+    client_meta = {
         "dag_id": dag_id,
-    })
+    }
 
     return client_meta
 

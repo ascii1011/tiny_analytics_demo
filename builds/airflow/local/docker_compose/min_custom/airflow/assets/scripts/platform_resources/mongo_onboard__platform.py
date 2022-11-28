@@ -1,80 +1,39 @@
 #!/usr/local/bin/python3.10
 
-"""pip install pymongo"""
-from pprint import pprint
-from pymongo import MongoClient
+from mongodb_lib import db_dig, onboard_database
 
-DBNAME='platform'
-#client = MongoClient('mongodb://mgadmin:mgpass@localhost:27017/local?authSource=admin&retryWrites=True', directConnection=True)
-#client = MongoClient('mongodb://mgadmin:mgpass@localhost:27017/local?authSource=admin', directConnection=True)
-#client = MongoClient('mongodb://mgadmin:mgpass@localhost:27017/local?directConnection=true&serverSelectionTimeoutMS=6000&appName=mongosh+1.6.0')
+db_name = 'platform'
+collection = 'clients'
 
-platform_client = MongoClient('mongodb://mgadmin:mgpass@mongo:27017/?authSource=admin', directConnection=True)
-
-def test():
-    client = MongoClient('mongodb://mgadmin:mgpass@mongo:27017/local?authSource=admin', directConnection=True)
-
-    db = client.local
-    collection = db.startup_log
-    print(f"coll: {list(collection.find())}")
-
-def display_platform(_client):
-    
-    with _client:
-        db = _client.platform
-        clients = db.clients.find()
-
-        pprint(list(clients))
-
-    
-def create_platform_database(_client):
-    """DB will only be created once a collection and data have been inserted!!!"""
-    
-    try:
-        print('\ncreate db')
-        platformdb = _client[DBNAME]
-
-        print('\ncreate collection')
-        client_col = platformdb["clients"]
-
-        print('\ninsert record')
-        # insert into collection
-        client_info = {
-            "name": "lala", "projects": ['ctc'],
+#add_initial_project
+doc = {
+    "name": "lala", 
+    "org": "LaLA LLC.",
+    "dag_owner": "lala",
+    "project_meta": {
+        "ctc": {
+            "file_format": {
+                "extension": ".txt",
+                "headers": ["id","project","desc","data","date"],
+                "header_exists": True,
+                "field_types": ["increment", "str-5", "str-20, int-10, dtef"],
+            },
+            "workflow_action_order": {
+                "etl": ["extract"],
+            },
+            "actions": {
+                "extract": {
+                    "unzip": True,
+                    "tar_file_format": "{client_id}_{project_id}_{batch_id}.tar.gz",
+                    "dest": "hdfs",
+                },
+                "validate": {
+                    "field": "project",
+                }
+            },
         }
-        x = client_col.insert_one(client_info)
+    }
+}
 
-        print(f"inserted_id: {x.inserted_id}")
-
-        #check if collection exists
-        collist = platformdb.list_collection_names()
-        if 'clients' in collist:
-            print(f"collection 'clients' exists :)")
-        else:
-            print(f"'clients' collection was not found :(")
-
-    except Exception as e:
-        print(f"error: {e}")
-
-    dblist = _client.list_database_names()
-    if DBNAME in dblist:
-        print(f"the database {DBNAME} exists :)")
-    else:
-        print(f"db {DBNAME} was not found :(")
-
-    return platformdb
-    
-def main():
-    #test()
-    
-    create_platform_database(platform_client)
-    display_platform(platform_client)
-    #create_client_collections()
-    #create_project_collections()
-
-    #onboard_client(name='lala')
-    #onboard_client_project(name='lala', project='ctc')
-
-
-if __name__ == "__main__":
-    main()
+onboard_database(db_name, collection, doc)
+db_dig(db_name, collection)

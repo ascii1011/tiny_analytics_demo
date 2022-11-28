@@ -1,5 +1,8 @@
 #!/bin/bash
 
+chmod +x *.sh
+chmod +x *.py
+
 # build and apply envs
 ./process_env.py ~/.bash_profile
 
@@ -34,3 +37,4 @@ mkdir -p $STAGING_ROOT/lala/ctc
 #cp client_data_generation_dag.py /opt/airflow/dags
 #cp lala_workflow_dags/client__lala__ctc__etl.py /opt/airflow/dags
 
+./mongo_onboard__client__lala.py

@@ -15,6 +15,7 @@ from airflow.exceptions import AirflowFailException
 
 # reusable utils and tools
 from workflow_lib import get_project_meta, extract_filename_args
+from mongodb_lib import platform_get_project_meta
 from bash_templates import extract_bash_cmd_tmpl, load_bash_cmd_tmpl
 
 args = extract_filename_args(__file__)
@@ -53,7 +54,8 @@ def context(args, dag_run=None, ti=None):
     client_id, project_id, batch_id = trigger_context.split('-')
     print(f'client: {client_id}, project: {project_id}, batch: {batch_id}')
 
-    meta = get_project_meta(client_id, project_id)
+    meta = platform_get_project_meta(client_id, project_id)
+    #meta = get_project_meta(client_id, project_id)
 
     print(f'meta: {meta}')
          

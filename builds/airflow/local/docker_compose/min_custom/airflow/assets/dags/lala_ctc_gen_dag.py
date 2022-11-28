@@ -28,6 +28,7 @@ from airflow.exceptions import AirflowFailException
 #from airflow import AirflowException
 
 from workflow_lib import gen_batch_id, get_dag_context, display_dir_content, generate_client_files, copy_files
+from mongodb_lib import client_get_file_criteria
 from bash_templates import compress_bash_cmd_tmpl
 
 
@@ -45,8 +46,6 @@ with DAG(dag_id="lala_ctc_generating_data",
 
     @task()
     def context(ti=None):
-        context = get_dag_context(__file__)
-        ti.xcom_push(key="file_criteria", value=context['file_criteria'])
 
         client_id = "lala"
         ti.xcom_push(key="client_id", value=client_id)
@@ -68,6 +67,11 @@ with DAG(dag_id="lala_ctc_generating_data",
 
         batch_dest_path = os.path.join(os.environ.get("INGESTION_ROOT"), client_id, project_id, batch_id)
         ti.xcom_push(key="batch_dest_path", value=batch_dest_path)
+
+    @task()
+    def file_criteria(ti=None):
+        # gather file_criteria from mongo as per client_id
+        return client_get_file_criteria(ti.xcom_pull(task_ids="context", key="client_id"))
 
     @task()
     def create_batch_folder(ti=None):
@@ -133,7 +137,10 @@ with DAG(dag_id="lala_ctc_generating_data",
         client_id = ti.xcom_pull(task_ids="context", key="client_id")
         project_id = ti.xcom_pull(task_ids="context", key="project_id")
         batch_id = ti.xcom_pull(task_ids="context", key="batch_id")
-        file_criteria = ti.xcom_pull(task_ids="context", key="file_criteria")
+        file_criteria = ti.xcom_pull(task_ids="file_criteria")
+
+        print(f"file_criteria: {file_criteria}")
+
 
         generate_client_files(client_id, project_id, batch_id, file_criteria)
         
@@ -179,4 +186,4 @@ with DAG(dag_id="lala_ctc_generating_data",
     """
 
     # Set dependencies between tasks
-    intro >> context() >> create_batch_folder() >> create_ingestion_folder() >> generate_files() >> compress >> send_files() >> trigger_dag
+    intro >> context() >> file_criteria() >> create_batch_folder() >> create_ingestion_folder() >> generate_files() >> compress >> send_files() >> trigger_dag

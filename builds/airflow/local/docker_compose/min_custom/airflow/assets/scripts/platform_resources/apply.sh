@@ -17,3 +17,5 @@ mkdir -p $INGESTION_ROOT
 # staging folder structure
 # transformed data lives here
 mkdir -p $STAGING_ROOT
+
+./mongo_onboard__platform.py
