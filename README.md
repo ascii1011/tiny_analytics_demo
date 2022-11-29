@@ -17,18 +17,28 @@ So, it will be a project within a project.  Cadence may vary :)
 ## Basic plan of attack
 Continuously gather requirements, build, test, deploy... all while documenting the goal (moving target), roles, process/methods, etc.
 
-Containers currently run locally on the following ports:
- - airflow @ http://localhost:8080/
-
 
 ## Stand it up local custom airflow 2.4.2
 This will change over time.  
- - current: 
+ - [done]current: 
     - stand-a-lone docker for airflow POC
     - basic pass through args/envs, applying basic customizations, and POC workflow concept
- - next phase
-    - airflow + postgres within docker compose
+ - [done] phase 2
+    - airflow + postgres within docker compose ("local/min_custom")
     - add bigger workflow (TDB)
+ - [pending]phase 3.* (I am thinking diverse workflows)
+    - [in progress]3.a: simple dna workflow
+    - ai, ml, protobuf, pubsub, dijkstra, q
+    - translate files/strings into different encoded output
+    - graph db - relationships
+    - spark (additional 3 containers)
+       - dags: split and process work
+       - streaming workflows - similar to databricks
+    - fastapi API as a proxy for triggering airflow, etc...
+ - phase 5 ("local/full_custom")
+ - lofty stuff (I will probably not be able to pull off locally)
+    - hdfs/hive (min 5 containers)
+    - kubernetes + etcd and deploy everything as resilient (need more power!!)
 
 
 ### Step 1 - Create the images
@@ -47,22 +57,26 @@ $ ./rebuild_image.sh (builds image: c8py3_airflow24_base)
 `
 
 ### Step 2 - Pick a deploy option
- - [option1] standalone airflow + some customizations (minimal) (airflow custom image/container - extends airflow base)
+ - [option1] "standalone" 
+ -- airflow[8080] + sqlite + some customizations (minimal) (airflow custom image/container - extends airflow base)
 `
  // from project root
 $ cd builds/airflow/local/cent_airflow_cont
 $ ./rebuild_image.sh (builds image: img_airflow24)
 $ ./run_container.sh (deploys container: con_airflow24, port: 8080, db: sqlite, SequentialExecutor)
 `
+UI: http://localhost:8080/
 
- - [option2] docker-compose options
-
- -- [min_custom] airflow[8251]+pgsql+custom dev
+ - [option2] "min_custom" (docker-compose)
+ -- airflow[8251]+pgsql+mongodb+mongo express+custom dev
  `
  // from project root
  cd builds/airflow/local/docker_compose/min_custom
  docker-compose -d up
  `
+Airflow        UI: http://localhost:8251/
+MongoDB       URL: mongodb://mgadmin:mgpass@mongo:27017/
+Mongo-express  UI: http://localhost:8081
 
 
 
