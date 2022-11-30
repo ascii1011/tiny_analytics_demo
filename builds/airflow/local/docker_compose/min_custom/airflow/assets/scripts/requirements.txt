@@ -1,2 +1,9 @@
-psycopg2-binary
-pymongo
+psycopg2-binary==2.9.5
+pymongo==4.3.3
+
+#### general ####
+numpy==1.23.5
+pandas==1.5.2
+
+#### dna workflows ####
+biopython==1.80

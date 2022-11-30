@@ -1,0 +1,32 @@
+
+# dags
+https://github.com/apache/airflow/blob/main/airflow/example_dags/example_python_operator.py
+https://airflow.apache.org/docs/apache-airflow/stable/concepts/dynamic-task-mapping.html#simple-mapping
+https://airflow.apache.org/docs/apache-airflow/stable/tutorial/taskflow.html
+https://stackoverflow.com/questions/43111506/how-do-i-force-a-task-on-airflow-to-fail
+https://hevodata.com/learn/airflow-tasks/
+
+# build/deploy
+https://towardsdatascience.com/setting-up-apache-airflow-with-docker-compose-in-5-minutes-56a1110f4122
+https://airflow.apache.org/docs/apache-airflow/2.4.3/production-deployment.html
+https://www.gradiant.org/en/blog/apache-airflow-docker-en/
+https://airflow.apache.org/docs/apache-airflow/stable/best-practices.html
+
+# api
+https://airflow.apache.org/docs/apache-airflow/stable/stable-rest-api-ref.html#operation/get_dag_runs
+https://airflow.apache.org/docs/apache-airflow/1.10.14/rest-api-ref.html
+https://hevodata.com/learn/airflow-rest-api/
+https://anilkulkarni87.github.io/airflow-api-tests/
+https://brocktibert.com/post/trigger-airflow-dags-via-the-rest-api/
+
+
+
+https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#overview
+https://jupyter-docker-stacks.readthedocs.io/en/latest/index.html
+
+
+https://stackoverflow.com/questions/68827564/io-unsupportedoperation-not-readable-in-a-mode
+https://stackoverflow.com/questions/44901806/python-error-message-io-unsupportedoperation-not-readable?rq=1
+
+
+

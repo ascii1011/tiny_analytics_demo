@@ -9,6 +9,7 @@ Author: Christopher Harty / Date: Oct 2022
 * This project will grow rapidly and so will resource requirements.
 * Running this project may cause unwanted results if resources are not carefully considered.
 * I make no guarantees and am not claiming this will work for anyone else.  Use at your own risk.
+* DON'T FORGET TO CREATE THE HOST SIDE MOUNTS :)
 
 ## Purpose of this repo
 To showcase a good portion of my abilities by working through a project at all levels, (from basic local to cloud distributed).
@@ -23,22 +24,33 @@ This will change over time.
  - [done]current: 
     - stand-a-lone docker for airflow POC
     - basic pass through args/envs, applying basic customizations, and POC workflow concept
- - [done] phase 2
+ - [done-mostly] phase 2
     - airflow + postgres within docker compose ("local/min_custom")
-    - add bigger workflow (TDB)
+    - add bigger workflow (have a client-side, platform-size, and shared libs / mnts)
+      - [pending] finish platform-side etl dag
+      - [pending] extra: nice to have: client-side generating data files manifest... 
+          create manifest with file count, line count, etc... to validate against on platform-side etl dag
  - [pending]phase 3.* (I am thinking diverse workflows)
-    - [in progress]3.a: simple dna workflow
-    - ai, ml, protobuf, pubsub, dijkstra, q
+    - [currently working on]3.a: create DNA case
+      - simple dna workflow (found caltech course 01 regarding 'Mabuya atlantica' dna samples and simple analysis)
+         - discovered 4 samples of dna, found score through tutorial code.
+            - thinking of using combinations to find how scores might find migration patterns and leverage dijkstra or A* to find best guess weighted relationships
+            - thought briefly about using graphql, but a bit overkill for now.  will stick to local scripts for now.
+    - openai, openml, protobuf, pubsub, dijkstra, q, openrgb
     - translate files/strings into different encoded output
-    - graph db - relationships
     - spark (additional 3 containers)
        - dags: split and process work
        - streaming workflows - similar to databricks
+       - jupyter
     - fastapi API as a proxy for triggering airflow, etc...
  - phase 5 ("local/full_custom")
  - lofty stuff (I will probably not be able to pull off locally)
+    - graph db - relationships
     - hdfs/hive (min 5 containers)
     - kubernetes + etcd and deploy everything as resilient (need more power!!)
+    - crypto/blockchain triggering tasks
+    - leadgen platform
+    - stock/crypto trading
 
 
 ### Step 1 - Create the images

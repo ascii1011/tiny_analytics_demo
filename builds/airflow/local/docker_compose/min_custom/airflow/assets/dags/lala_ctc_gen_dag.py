@@ -28,7 +28,8 @@ from airflow.exceptions import AirflowFailException
 #from airflow import AirflowException
 
 from workflow_lib import gen_batch_id, get_dag_context, display_dir_content, generate_client_files, copy_files
-from mongodb_lib import client_get_file_criteria
+#from mongodb_lib import client_get_file_criteria
+from db.mongo import client_get_file_criteria
 from bash_templates import compress_bash_cmd_tmpl
 
 

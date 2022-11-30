@@ -5,7 +5,14 @@ import sys
 
 from pprint import pprint
 
+RAW_DATA_ROOT = '/opt/mnt/raw_data/dna'
+
 __all__ = ["transcribe", "translate"]
+
+
+
+
+def fasta_format(): pass
 
 def transcribe(dna='GAUGCUAGUCGUCGAUGCUGAUGAUCGU'):
 	# create a transcription map and use regex to translate

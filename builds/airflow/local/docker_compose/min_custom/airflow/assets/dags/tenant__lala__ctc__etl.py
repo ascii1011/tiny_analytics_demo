@@ -15,7 +15,8 @@ from airflow.exceptions import AirflowFailException
 
 # reusable utils and tools
 from workflow_lib import extract_filename_args, get_files_from_path, get_line_count_from_file
-from mongodb_lib import platform_get_project_meta
+#from mongodb_lib import platform_get_project_meta
+from db.mongo import platform_get_project_meta
 from bash_templates import extract_bash_cmd_tmpl, load_bash_cmd_tmpl
 
 args = extract_filename_args(__file__)
@@ -53,7 +54,7 @@ def context(args, dag_run=None, ti=None):
 
     client_id, project_id, batch_id = trigger_context.split('-')
     print(f'client: {client_id}, project: {project_id}, batch: {batch_id}')
-
+    
     meta = platform_get_project_meta(client_id, project_id)
     #meta = get_project_meta(client_id, project_id)
 
@@ -84,7 +85,8 @@ with DAG(
     dag_id=args["dag_id"], 
     start_date=pendulum.datetime(2022, 11, 27, tz="UTC"), 
     schedule=None,
-    catchup=False) as dag:
+    catchup=False,
+    tags=args["tags"]) as dag:
 
     op_context = context(args)
 
@@ -109,10 +111,16 @@ with DAG(
     @task
     def tmp_load_to_bronze_db(): pass
 
-    @task
+
+    @task()
     def list_filenames(ti=None):
-        ingest_path = ti.xcom_pull(task_ids="context", key="ingestion_path")
-        print(f'ingest_path: {ingest_path}')
+        limit = 0
+        ingest_path = None
+        while limit < 10 and ingest_path == None:
+            ingest_path = ti.xcom_pull(task_ids="context", key="ingestion_path")
+            print(f'{limit}) ingest_path: {ingest_path}')
+            limit += 1
+
         extract_path = os.path.join(ingest_path, 'extract')
 
         return get_files_from_path(extract_path)

@@ -187,7 +187,7 @@ def get_files_from_path(path):
 
 def display_dir_content(path, desc="folder content:"):
     print("$")
-    print(f"$ ls {path}")
+    print(f"$ ls {path} | exists? {os.path.exists(path)}")
     for (root, dirs, file) in os.walk(path):
         for _dir in dirs:
             print(f"d: {_dir}/")
@@ -295,7 +295,7 @@ def extract_filename_args(_filename):
                 }
                 
                 args.update({
-                    "tags": args.values(),
+                    "tags": list(args.values()),
                     "dag_id": file_basename
                 })
 
@@ -331,5 +331,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    #main()
     pass
