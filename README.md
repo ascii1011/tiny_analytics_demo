@@ -18,6 +18,12 @@ So, it will be a project within a project.  Cadence may vary :)
 ## Basic plan of attack
 Continuously gather requirements, build, test, deploy... all while documenting the goal (moving target), roles, process/methods, etc.
 
+Major milestones regarding apache airflow infra:
+  1) standalone
+  2) min local multi-task (with bells) [currently here]
+  3) full local multi-task (just has everything scaled out locally; rough on resources and build/deploy)
+  4) kubernetes full local
+  5) cloud based CICD for infra, container, and dev
 
 ## Stand it up local custom airflow 2.4.2
 This will change over time.  

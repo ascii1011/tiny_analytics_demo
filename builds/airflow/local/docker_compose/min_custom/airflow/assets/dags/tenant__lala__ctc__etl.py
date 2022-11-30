@@ -111,7 +111,6 @@ with DAG(
     @task
     def tmp_load_to_bronze_db(): pass
 
-
     @task()
     def list_filenames(ti=None):
         limit = 0
@@ -125,19 +124,4 @@ with DAG(
 
         return get_files_from_path(extract_path)
 
-    @task
-    def count_lines(filename):
-        return get_line_count_from_file(filename)
-
-    @task
-    def total(lines):
-        return sum(lines)
-
-    counts = count_lines.expand(
-        filename=list_filenames()
-    )
-
-    
-
-
-    op_context  >> op_untar >> tmp_persist_raw_db() >> tmp_persist_extract_db() >> tmp_transformation() >> tmp_load_to_bronze_db() >> total(lines=counts)
+    op_context  >> op_untar >> tmp_persist_raw_db() >> tmp_persist_extract_db() >> tmp_transformation() >> tmp_load_to_bronze_db() >> list_filenames()

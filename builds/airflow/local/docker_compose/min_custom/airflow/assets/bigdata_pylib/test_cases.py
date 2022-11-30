@@ -17,12 +17,24 @@ def test_db_platform_abs(debug=False):
     from db.mongo import platform_get_project_meta
     pprint(platform_get_project_meta('lala', 'ctc', debug))
 
-def sequence_analysis_abs(debug=False):
-    print("# sequence_analysis_abs() #")
-    from analysis.dna.caltech_edu.basic import sequence_analysis
 
-    res = sequence_analysis()
-    print(f"res: {res}")
+def sequence_analysis_absv2(debug=False):
+    if debug: print("# sequence_analysis_absv2!!() #")
+    from analysis.dna.caltech_edu.basic import get_dna_pair_compute_similarity_scores, get_dna_map_combination_pairs, map_dna_files
+    list_of_files = ['/opt/mnt/raw_data/dna/bige105/mabuya_atlantica/mabuya_aln.fasta',]
+    
+    dna_map = map_dna_files(list_of_files, debug)
+    combo_pairs = get_dna_map_combination_pairs(dna_map, debug)
+    scores = get_dna_pair_compute_similarity_scores(combo_pairs, dna_map, debug)
+    print('scores:')
+    pprint(scores)
+
+
+def sequence_analysis_abs(debug=False):
+    if debug: print("# sequence_analysis_abs() #")
+    from analysis.dna.caltech_edu.basic import sequence_analysis
+    list_of_files = ['/opt/mnt/raw_data/dna/bige105/mabuya_atlantica/mabuya_aln.fasta',]
+    sequence_analysis(list_of_files, debug)
     
 def covidtracking_api(debug=False):
     # Gets totalTestResultsIncrease field from Covid API for given state and returns value
@@ -72,8 +84,9 @@ def covidtracking_api(debug=False):
 def main():
     debug = True
 
-    covidtracking_api(debug)
+    #covidtracking_api(debug)
     #sequence_analysis_abs(debug)
+    sequence_analysis_absv2(debug)
     #test_db_client_abs(debug)
     #test_db_platform_abs(debug)
 

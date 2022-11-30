@@ -16,7 +16,7 @@ from api import get_request
 with DAG('util__covid_tracking',
          start_date=pendulum.datetime(2022, 11, 29, tz="UTC"),
          max_active_runs=1,
-         schedule_interval="0 0 30 * *",
+         schedule_interval="@daily",
          catchup=False
          ) as dag:
 
