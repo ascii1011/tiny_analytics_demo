@@ -37,8 +37,8 @@ This will change over time.
       - [pending] finish platform-side etl dag
       - [pending] extra: nice to have: client-side generating data files manifest... 
           create manifest with file count, line count, etc... to validate against on platform-side etl dag
- - [future]phase 3.* (I am thinking diverse workflows)
-    - [currently working on]3.a: create DNA case
+ - [inprogress]phase 3.* (I am thinking diverse workflows)
+    - [done]3.a: create DNA case
       - simple dna workflow (found caltech course 01 regarding 'Mabuya atlantica' dna samples and simple analysis)
          - discovered 4 samples of dna, found score through tutorial code.
             - thinking of using combinations to find how scores might find migration patterns and leverage dijkstra or A* to find best guess weighted relationships
@@ -47,7 +47,7 @@ This will change over time.
 ### planning to build
 - fastapi API as a proxy for triggering airflow, etc...
 - ML and Q
-- Dijkstra
+- [done]Dijkstra
 ### really nice to haves
 - openai, openml, protobuf, pubsub, dijkstra, q, openrgb
 - translate files/strings into different encoded output

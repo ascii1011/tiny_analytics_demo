@@ -7,3 +7,6 @@ pandas==1.5.2
 
 #### dna workflows ####
 biopython==1.80
+
+#### quantum ####
+qiskit==0.39.3
