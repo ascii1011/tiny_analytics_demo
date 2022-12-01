@@ -16,7 +16,9 @@ from airflow.exceptions import AirflowFailException
 # reusable utils and tools
 from workflow_lib import extract_filename_args, get_files_from_path, get_line_count_from_file
 #from analysis.dna.caltech_edu.basic import sequence_analysis
-from analysis.dna.caltech_edu.basic import get_dna_pair_compute_similarity_scores, get_dna_map_combination_pairs, map_dna_files
+from analysis.dna.caltech_edu.basic import (
+    get_dna_pair_compute_similarity_scores, get_dna_map_combination_pairs, map_dna_files, to_graph_edges)
+from algorithms.dijkstra import dijk_spla
 
 args = extract_filename_args(__file__)
 
@@ -72,4 +74,18 @@ with DAG(
             ti.xcom_pull(task_ids="context", key="debug")
             )
 
-    context(args) >> list_filenames() >> dna_map() >> dna_combo_pairs() >> scores()
+    @task
+    def graph_edges(ti=None):
+        return to_graph_edges(
+            ti.xcom_pull(task_ids="scores"), 
+            ti.xcom_pull(task_ids="context", key="debug")
+        )
+
+    @task
+    def dijkstra_eval(ti=None):
+        res = dijk_spla(ti.xcom_pull(task_ids="graph_edges"))
+        print('dijkstra:')
+        for r in res:
+            print(r)
+
+    context(args) >> list_filenames() >> dna_map() >> dna_combo_pairs() >> scores() >> graph_edges() >> dijkstra_eval()

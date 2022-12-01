@@ -1,4 +1,4 @@
-##!/usr/local/bin/python3.10
+#!/usr/local/bin/python3.10
 
 import os
 import pathlib
@@ -20,14 +20,24 @@ def test_db_platform_abs(debug=False):
 
 def sequence_analysis_absv2(debug=False):
     if debug: print("# sequence_analysis_absv2!!() #")
-    from analysis.dna.caltech_edu.basic import get_dna_pair_compute_similarity_scores, get_dna_map_combination_pairs, map_dna_files
+    from analysis.dna.caltech_edu.basic import get_dna_pair_compute_similarity_scores, get_dna_map_combination_pairs, map_dna_files, to_graph_edges
+    from algorithms.dijkstra import dijk_spla
     list_of_files = ['/opt/mnt/raw_data/dna/bige105/mabuya_atlantica/mabuya_aln.fasta',]
     
     dna_map = map_dna_files(list_of_files, debug)
     combo_pairs = get_dna_map_combination_pairs(dna_map, debug)
     scores = get_dna_pair_compute_similarity_scores(combo_pairs, dna_map, debug)
-    print('scores:')
+    print('\nscores:')
     pprint(scores)
+
+    edges = to_graph_edges(scores, debug)
+    print('\n#edges:')
+    pprint(edges)
+
+    res = dijk_spla(edges)
+    print('dijkstra:')
+    pprint(res)
+
 
 
 def sequence_analysis_abs(debug=False):
@@ -82,7 +92,7 @@ def covidtracking_api(debug=False):
 
 
 def main():
-    debug = True
+    debug = False
 
     #covidtracking_api(debug)
     #sequence_analysis_abs(debug)
