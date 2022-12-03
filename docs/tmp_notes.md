@@ -132,4 +132,11 @@ With appropriate resources and time a project manager would be able to start to
 
 
 
+ocr stuff:
+
+ - what I used in some dags: https://builtin.com/data-science/python-ocr 
+
+ - For big picture pipeline overview, think this is a good start
+   - url: https://link.springer.com/article/10.1007/s10032-020-00359-9
+
 

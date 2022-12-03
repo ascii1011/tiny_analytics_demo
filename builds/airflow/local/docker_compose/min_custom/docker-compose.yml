@@ -32,7 +32,7 @@ services:
       - ./airflow/assets/dags:/opt/airflow/dags
       - ./airflow/assets/bigdata_pylib:/opt/mnt/bigdata/pylib
       - ~/dev/mnt_data/tiny_analytics_platform/min_custom/airflow/logs:/opt/airflow/logs
-      - ~/dev/mnt_data/tiny_analytics_platform/raw_data/dna:/opt/mnt/raw_data/dna
+      - ~/dev/mnt_data/tiny_analytics_platform/raw_data:/opt/mnt/raw_data
     depends_on: 
       - postgres
     restart: always

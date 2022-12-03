@@ -10,6 +10,9 @@ ENV AIRFLOW__CORE__LOAD_EXAMPLES=$AIRFLOW__CORE__LOAD_EXAMPLES
 ENV TMP_DUMP=$TMP_DUMP
 RUN mkdir -p $TMP_DUMP
 
+# install ocr lib
+RUN yum -y install tesseract
+
 # tmp mounting dags from host.
 # copy general dags files
 #COPY assets/dags/ /opt/airflow/dags

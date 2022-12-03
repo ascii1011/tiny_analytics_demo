@@ -14,7 +14,8 @@ import logging
 __all__ = [
     'get_account_meta', 'get_project_meta', 'extract_filename_args', 
     'generate_client_files', 'display_dir_content','get_dag_context',
-    'copy_files', 'get_files_from_path', 'get_line_count_from_file']
+    'copy_files', 'get_files_from_path', 'path_from_xcom', 'get_line_count_from_file',
+    'ls_files']
 
 log = logging.getLogger(__name__)
 
@@ -176,23 +177,84 @@ def generate_client_files_v2(args):
 
     return batch_src_path, batch_dest_path
 
-def get_files_from_path(path):
+def path_from_xcom(ti, ti_task_id, ti_key):
+    """assists with reliably retrieving path from xcom.
+    """
+    limit = 0
+    path = None
+    while limit < 10 and path == None:
+        path = ti.xcom_pull(task_ids=ti_task_id, key=ti_key)
+        print(f'resolve attempt({limit}) path: {path}')
+        limit += 1
+
+    return path
+
+def get_files_from_path(path, extentions=[]):
+    """returns list of full file paths.
+    not ideal for passing as xcom"""
     files = []
+
+    if not os.path.exists(path):
+        print(f"path '{path}' does not exist, exiting...")
+        return files
+
     for (root, dirs, file) in os.walk(path):
         for f in file:
-            files.append(path+'/'+f)
+            if extentions == []:
+                files.append(path+'/'+f)
 
+            elif f.split('.')[-1] in extentions:
+                files.append(path+'/'+f)
+
+    return files
+
+def dir_content(path, only_ext=[], desc="folder content:", files_only=True, debug=False):
+    if debug: print("$ dir_content(...)")
+    files = []
+
+    if not os.path.exists(path):
+        print(f"path '{path}' does not exist, exiting...")
+        return files
+
+    print(f"$ ls {path}")
+    for (root, dirs, file) in os.walk(path):
+        if files_only != True:
+            for _dir in dirs:
+                print(f"dir: {_dir}/")
+
+        for f in file:
+            print(f"--file: {f}")
+            files.append(os.path.join(path, f))
+
+        break
     return files
     
 
+def ls_files(path, extentions=[]):
+    from os import listdir
+    from os.path import isfile, join
+    files = []
+
+    if not os.path.exists(path):
+        print(f"path '{path}' does not exist, exiting...")
+        return files
+
+    for f in listdir(path):
+        if isfile(join(path, f)):
+            if f.split('.')[-1] in extentions:
+                #print(f)
+                files.append(f)
+    
+    return files
+
 def display_dir_content(path, desc="folder content:"):
-    print("$")
+    print("$ display_dir_content(...)")
+
     print(f"$ ls {path} | exists? {os.path.exists(path)}")
     for (root, dirs, file) in os.walk(path):
-        for _dir in dirs:
-            print(f"d: {_dir}/")
         for f in file:
-            print(f)
+            print(f"--file: {f}")
+        break
 
 def generate_line(line_id, values):
     utc = datetime.utcnow()
