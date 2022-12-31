@@ -43,11 +43,13 @@ This will change over time.
          - discovered 4 samples of dna, found score through tutorial code.
             - thinking of using combinations to find how scores might find migration patterns and leverage dijkstra or A* to find best guess weighted relationships
             - thought briefly about using graphql, but a bit overkill for now.  will stick to local scripts for now.
+- [done] ML       # added simple ML-based langauge detection and ocr dags
+- [done] Dijkstra # added to the end of dna analysis dag as a base for back tracing human lineage
+- [done] Qiskit   # added really basic api usage within a dag
 
 ### planning to build
-- fastapi API as a proxy for triggering airflow, etc...
-- ML and Q
-- [done]Dijkstra
+- spark + scala
+- fastapi API as a proxy for admin, client, and downstream workflow features, etc...
 ### really nice to haves
 - openai, openml, protobuf, pubsub, dijkstra, q, openrgb
 - translate files/strings into different encoded output
@@ -55,15 +57,23 @@ This will change over time.
    - dags: split and process work
    - streaming workflows - similar to databricks
    - jupyter
-### lofty stuff
+### lofty or on-the-fence stuff
 - graph db - relationships
 - hdfs/hive (min 5 containers)
 - kubernetes + etcd and deploy everything as resilient (need more power!!)
 - crypto/blockchain triggering tasks
 - leadgen platform
 - stock/crypto trading
+- anaconda3
 
 ## Stand it up local custom airflow 2.4.2
+
+* Local Prerequisites:
+ - local volumes and mounts
+ - ~/.env (for overriding env vars and creds)
+   - openai credentials
+
+
 >>> Step 1 - Create the images
  - centos base image
 `

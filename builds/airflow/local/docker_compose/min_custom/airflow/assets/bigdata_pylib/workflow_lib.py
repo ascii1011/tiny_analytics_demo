@@ -15,7 +15,7 @@ __all__ = [
     'get_account_meta', 'get_project_meta', 'extract_filename_args', 
     'generate_client_files', 'display_dir_content','get_dag_context',
     'copy_files', 'get_files_from_path', 'path_from_xcom', 'get_line_count_from_file',
-    'ls_files']
+    'ls_files', 'gen_batch_id']
 
 log = logging.getLogger(__name__)
 
@@ -252,8 +252,10 @@ def display_dir_content(path, desc="folder content:"):
 
     print(f"$ ls {path} | exists? {os.path.exists(path)}")
     for (root, dirs, file) in os.walk(path):
+        print(f"> {root=}")
+        print(f"> {root=}")
         for f in file:
-            print(f"--file: {f}")
+            print(f">>--file: {f}")
         break
 
 def generate_line(line_id, values):

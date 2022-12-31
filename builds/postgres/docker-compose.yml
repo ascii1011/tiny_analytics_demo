@@ -19,6 +19,20 @@ services:
         max-file: "3"
     networks:
       - default
+  pgadmin:
+    container_name: pgadmin4
+    image: 'dpage/pgadmin4:5.1'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_USERNAME: ${PGADMIN_USERNAME}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    restart: unless-stopped
+    depends_on: 
+      - postgres
+    ports:
+      - 9102:80
+    networks:
+      - default
 
 networks:
   default:

@@ -23,30 +23,35 @@ AIRFLOW_PKG_EXEC="/usr/local/bin/airflow"
 
  ## management/power user 8200 - 8299
  jenkins    8201
- airflow    8251 - 8270 (~20)
+ airflow     8251
+ juypter    8252
 
  # base infra
- kubernetes
-   hdfs
-   ldap
-   etcd
+ # kubernetes
+ #   hdfs
+ #   ldap
+ #   etcd
 
  # data stores 8400 - 8499
  postgres   8401
- mongo      8411
- mysql      8421
- hadoop     8431
- hive       8441
- hbase      8451
- ES         8461
- surrealdb  8471
- graphql    8475
+ mongo-express  8411
+ mongo      8412
+ #mysql      8421
+ #hadoop     8431
+ #hive       8441
+ #hbase      8451
+ #ES         8461
+ #surrealdb  8471
+ #graphql    8475
  redis      8480
 
  ## infra (processing) 8500 - 8700
- spark      8501 - 8550 (35+)
- kafka      8551 - 8570
- queue
+ spark-ui   8501
+ spark      8504 - 8550 (35+)
+ #kafka      8551 - 8570
+ #queue
+
+
 
 
 bootcamp

@@ -130,13 +130,67 @@ def test_image_to_text_abs(debug=False):
     pprint(results)
 
 
+
+def get_openai_env():
+    env = {}
+    with open('/opt/openai_test/.env', 'r') as f:
+        for _line in f.readlines():
+            line = _line.strip()
+            if line:
+                key, value = line.split('=')
+                env.update({key:value})
+    return env
+
+def test_openai(debug=False):
+    import openai
+
+    envs = get_openai_env()
+    print(envs)
+
+    org = envs["OPENAI_API_ORG_ID"]
+    print(f"org: {org}")
+    openai.organization = org
+
+    key = envs["OPENAI_API_KEY"]
+    print(f"key: {key}")
+    openai.api_key = key
+    
+    print(openai.Model.list())
+
+def tmp(debug=False):
+    from pyspark import SparkContext, SparkConf
+    from pyspark.sql import SQLContext, SparkSession
+    print('config...')
+    conf = SparkConf().setAppName('SparkApp').setMaster('spark://spark:7077')
+    print('context...')
+    sc = SparkContext(conf=conf)
+    print('session...')
+    spark = SparkSession(sc)
+
+def test_pyspark(debug=False):
+    from pyspark import SparkContext
+    #from pyspark.sql import SQLContext, SparkSession
+    logFilepath = "file:////opt/mnt/raw_data/test/generated/client/moomoo/ube/109a/moomoo_ube_109a_0.txt" 
+    #logFilepath = "file:////opt/scripts/wordcount.txt"  
+    sc = SparkContext("spark://spark:7077", "first app")
+    logData = sc.textFile(logFilepath).cache()
+    numAs = logData.filter(lambda s: 'a' in s).count()
+    numBs = logData.filter(lambda s: 'b' in s).count()
+    print("Lines with a: %i, lines with b: %i" % (numAs, numBs))
+
+
+
 def main():
     debug = False
     print('')
     print('===================================')
     print(f'=====start test ({debug=}) ====\n-')
 
-    test_image_to_text_abs(debug)
+    test_pyspark(debug)
+
+    #test_openai(debug)
+
+    #test_image_to_text_abs(debug)
     
     #ls_files()
 

@@ -176,7 +176,13 @@ function onboard {
 
     source ~/.bash_profile
 
-    pip install -r requirements.txt
+    ###### have moved all this to dockerfile ######
+    # pip3.10 install -r requirements.txt
+    #
+    ### temp fix...  previously in requirements.txt file... however it appeared to have been over written by something else.
+    ### items in the file are a mix of stuff and should be moved to seperate container instances as needed ... later :)
+    # pip3.10 install psycopg2-binary==2.9.5
+    ##############################################
 
     tree /opt/
 

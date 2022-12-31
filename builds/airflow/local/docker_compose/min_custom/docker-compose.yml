@@ -1,4 +1,4 @@
-# Basic Airflow cluster configuration for CeleryExecutor with Redis and PostgreSQL.
+# Basic Airflow configuration.
 # WARNING: This configuration is for local development. Do not use it in a production deployment.
 ---
 version: '3.8'
@@ -16,6 +16,8 @@ services:
       interval: 5s
       retries: 5
     restart: always
+    networks:
+      - tapd_net
   airflow:
     build: ./airflow
     environment:
@@ -29,35 +31,48 @@ services:
     ports:
       - 8251:8080
     volumes:
-      - ./airflow/assets/dags:/opt/airflow/dags
-      - ./airflow/assets/bigdata_pylib:/opt/mnt/bigdata/pylib
-      - ~/dev/mnt_data/tiny_analytics_platform/min_custom/airflow/logs:/opt/airflow/logs
-      - ~/dev/mnt_data/tiny_analytics_platform/raw_data:/opt/mnt/raw_data
+      - ./airflow/assets/dags:/opt/airflow/dags # airflow
+      - ~/dev/mnt_data/tiny_analytics_platform/min_custom/airflow/logs:/opt/airflow/logs # airflow
+      - ./airflow/assets/bigdata_pylib:/opt/mnt/bigdata/pylib # support libs 
+      - ~/dev/mnt_data/tiny_analytics_platform/raw_data:/opt/mnt/raw_data # all raw data, examples, generated scenarios
     depends_on: 
       - postgres
+    healthcheck:
+        test: ["CMD-SHELL", "[ -f /opt/airflow/airflow-webserver.pid ]"]
+        interval: 30s
+        timeout: 30s
+        retries: 3
     restart: always
+    networks:
+      - tapd_net
 
   mongo:
     image: mongo
     container_name: mongodb
-    restart: always
     environment:
       MONGO_INITDB_DATABASE: platform
       MONGO_INITDB_ROOT_USERNAME: mgadmin      
       MONGO_INITDB_ROOT_PASSWORD: mgpass
     volumes:
-      - ./mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo-js:ro
-      - ~/dev/mnt_data/tiny_analytics_platform/min_custom/mongodb/data:/data/db
+      - ./mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo-js:ro # onboard script
+      - ~/dev/mnt_data/tiny_analytics_platform/min_custom/mongodb/data:/data/db 
     ports:
       - 27017:27017
+    restart: always
+    networks:
+      - tapd_net
+  
   mongo-express:
     image: mongo-express
-    restart: always
     ports:
-      - 8081:8081
+      - 8411:8081
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: mgadmin
       ME_CONFIG_MONGODB_ADMINPASSWORD: mgpass
       ME_CONFIG_MONGODB_URL: mongodb://mgadmin:mgpass@mongo:27017/
+    restart: always
+    networks:
+      - tapd_net
 
-
+networks:
+    tapd_net:

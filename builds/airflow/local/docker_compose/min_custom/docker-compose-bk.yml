@@ -1,0 +1,146 @@
+# Basic Airflow configuration.
+# WARNING: This configuration is for local development. Do not use it in a production deployment.
+---
+version: '3.8'
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - ~/dev/mnt_data/tiny_analytics_platform/min_custom/postgresql/data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      retries: 5
+    restart: always
+    networks:
+      - tapd_net
+  airflow:
+    build: ./airflow
+    environment:
+      - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=True
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__API__ENABLE_EXPERIMENTAL_API=True
+      - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth
+    ports:
+      - 8251:8080
+    volumes:
+      - ./airflow/assets/dags:/opt/airflow/dags # airflow
+      - ~/dev/mnt_data/tiny_analytics_platform/min_custom/airflow/logs:/opt/airflow/logs # airflow
+      - ./airflow/assets/bigdata_pylib:/opt/mnt/bigdata/pylib # support libs 
+      - ~/dev/mnt_data/tiny_analytics_platform/raw_data:/opt/mnt/raw_data # all raw data, examples, generated scenarios
+    depends_on: 
+      - postgres
+    healthcheck:
+        test: ["CMD-SHELL", "[ -f /opt/airflow/airflow-webserver.pid ]"]
+        interval: 30s
+        timeout: 30s
+        retries: 3
+    restart: always
+    networks:
+      - tapd_net
+
+  mongo:
+    image: mongo
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_DATABASE: platform
+      MONGO_INITDB_ROOT_USERNAME: mgadmin      
+      MONGO_INITDB_ROOT_PASSWORD: mgpass
+    volumes:
+      - ./mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo-js:ro # onboard script
+      - ~/dev/mnt_data/tiny_analytics_platform/min_custom/mongodb/data:/data/db 
+    ports:
+      - 27017:27017
+    restart: always
+    networks:
+      - tapd_net
+  
+  mongo-express:
+    image: mongo-express
+    ports:
+      - 8411:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: mgadmin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: mgpass
+      ME_CONFIG_MONGODB_URL: mongodb://mgadmin:mgpass@mongo:27017/
+    restart: always
+    networks:
+      - tapd_net
+
+  spark:
+    image: bitnami/spark:3.1.2
+    user: root # Run container as root container: https://docs.bitnami.com/tutorials/work-with-non-root-containers/
+    hostname: spark
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    volumes:
+      - ./test-files:/test-files:rw
+      - ~/dev/mnt_data/tiny_analytics_platform/min_custom/spark/app:/usr/local/spark/app # Spark scripts folder (Must be the same path in airflow and Spark Cluster)
+      - ~/dev/mnt_data/tiny_analytics_platform/min_custom/spark/resources:/usr/local/spark/resources #Resources folder (Must be the same path in airflow and Spark Cluster)
+    ports:
+      - "8501:8080"
+      - "7077:7077"
+    networks:
+      - tapd_net
+  
+  spark-worker-1:
+    image: bitnami/spark:3.3
+    user: root
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    command: ["/usr/local/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark:7077"]
+    volumes:
+      - ~/dev/mnt_data/tiny_analytics_platform/min_custom/spark/app:/usr/local/spark/app # Spark scripts folder (Must be the same path in airflow and Spark Cluster)
+      - ~/dev/mnt_data/tiny_analytics_platform/min_custom/spark/resources:/usr/local/spark/resources #Resources folder (Must be the same path in airflow and Spark Cluster)
+    networks:
+      - tapd_net
+  spark-worker-2:
+    image: bitnami/spark:3.3
+    user: root
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    command: ["/usr/local/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark:7077"]
+    volumes:
+      - ~/dev/mnt_data/tiny_analytics_platform/min_custom/spark/app:/usr/local/spark/app # Spark scripts folder (Must be the same path in airflow and Spark Cluster)
+      - ~/dev/mnt_data/tiny_analytics_platform/min_custom/spark/resources:/usr/local/spark/resources #Resources folder (Must be the same path in airflow and Spark Cluster)
+    networks:
+      - tapd_net
+  jupyter-spark:
+    image: jupyter/pyspark-notebook:spark-3.3
+    ports:
+      - "8252:8888"
+      - "4040-4080:4040-4080"
+    volumes:
+      - ~/dev/mnt_data/tiny_analytics_platform/min_custom/notebooks:/opt/notebooks/
+      - ~/dev/mnt_data/tiny_analytics_platform/min_custom/spark/resources/data:/opt/spark/data/
+      - ~/dev/mnt_data/tiny_analytics_platform/min_custom/spark/resources/jars:/opt/spark/jars/
+    networks:
+      - tapd_net
+
+networks:
+    tapd_net:
