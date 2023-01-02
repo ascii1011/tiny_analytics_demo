@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block body %}
+  <h3>Generate product names from keywords</h3>
+  <form action="/createproductname" method="post">
+    <input type="text" name="keywords" placeholder="Enter an keywords" required />
+    <input type="submit" value="Generate Product Name" />
+  </form>
+
+  {% if result %}
+    <div class="result">{{ result }}</div>
+  {% endif %} 
+{% endblock %}

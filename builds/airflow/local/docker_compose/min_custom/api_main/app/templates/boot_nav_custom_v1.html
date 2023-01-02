@@ -1,0 +1,34 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand">OpenAI Stuff</a>
+  
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="{{ url_for('index') }}">Home <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('airflow_request') }}">Airflow Request</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('image_gen') }}">Gen Images</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('createproductname') }}">Product Names</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('studynotes') }}">StudyNotes</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('chat') }}">ChatBot</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('devchatbot') }}">DevChatbot</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('horrorstorygenerator') }}">Horror Stories</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('pet') }}">Pet Names</a>
+        </li>
+    </div>
+  </nav>

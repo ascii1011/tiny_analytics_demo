@@ -46,6 +46,46 @@ services:
     networks:
       - tapd_net
 
+  
+  api_main:
+    container_name: api_main
+    build:
+      context: ./api_main
+      dockerfile: Dockerfile
+    #  args:
+    #    - DEBUG=${DEBUG}
+    environment:
+      - DATABASE_URL=postgres://airflow:airflow@postgres/airflow
+    env_file:
+     - ~/dev/.env_openai_creds
+    volumes:
+     - ./app:/opt/app
+     - ~/dev/mnt_data/tiny_analytics_platform/min_custom/api_main/download:/opt/download/
+    #command: ["python", "server.py"]
+    depends_on: 
+      - postgres
+    ports:
+      - 8099:5000
+
+  client_nextjs:
+    build:
+      context: ./client_nextjs
+      dockerfile: Dockerfile
+    volumes:
+      - './client/app:/usr/src/app'
+      - '/usr/src/app/node_modules'
+    ports:
+      - 3008:3000
+    environment:
+      - API_URL=api_main
+      - NODE_ENV=development
+      - REACT_APP_SERVICE_URL=http://localhost:8080
+      - CHOKIDAR_USEPOLLING=true
+      - DATABASE_URL=postgres://airflow:airflow@postgres/airflow
+    depends_on:
+      - api_main
+      - postgres
+
   mongo:
     image: mongo
     container_name: mongodb

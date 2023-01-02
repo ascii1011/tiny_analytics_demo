@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block body %}
+  <h3>Name my pet from the type of animal</h3>
+  <form action="/pet" method="post">
+    <input type="text" name="animal" placeholder="Enter an animal" required />
+    <input type="submit" value="Generate Name" />
+  </form>
+
+  {% if result %}
+    <div class="result">{{ result }}</div>
+  {% endif %} 
+{% endblock %}

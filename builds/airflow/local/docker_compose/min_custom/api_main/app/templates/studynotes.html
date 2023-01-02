@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block body %}
+  <h3>Study Notes from topic keywords</h3>
+  <form action="/studynotes" method="post">
+    <input type="text" name="keywords" placeholder="Enter topic keywords" required />
+    <input type="submit" value="Generate Notes" />
+  </form>
+
+  {% if result %}
+    <div class="result">{{ result }}</div>
+  {% endif %} 
+{% endblock %}

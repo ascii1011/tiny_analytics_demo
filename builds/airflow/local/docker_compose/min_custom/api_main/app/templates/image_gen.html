@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block body %}
+  <h3>Generate images from key words</h3>
+  <form action="/image_gen" method="post">
+    <input type="text" name="keywords" placeholder="Enter an key words" required />
+    <input type="submit" value="Generate images" />
+  </form>
+
+  {% if result %}
+    <div class="result">{{ result }}</div>
+  {% endif %} 
+{% endblock %}

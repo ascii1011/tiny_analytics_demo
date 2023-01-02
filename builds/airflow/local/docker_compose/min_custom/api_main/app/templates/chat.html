@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block body %}
+  <h3>Lets talk</h3>
+  <form action="/chat" method="post">
+    <input type="text" name="chat_input" placeholder="chat" required />
+    <input type="submit" value="Send" />
+  </form>
+
+  {% if result %}
+    <div class="result">{{ result }}</div>
+  {% endif %} 
+{% endblock %}

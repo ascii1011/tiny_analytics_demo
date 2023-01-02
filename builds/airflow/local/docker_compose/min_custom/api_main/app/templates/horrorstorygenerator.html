@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block body %}
+  <h3>Short Horror Stories from keywords</h3>
+  <form action="/studynotes" method="post">
+    <input type="text" name="keywords" placeholder="Enter story keywords" required />
+    <input type="submit" value="Generate Story" />
+  </form>
+
+  {% if result %}
+    <div class="result">{{ result }}</div>
+  {% endif %} 
+{% endblock %}
