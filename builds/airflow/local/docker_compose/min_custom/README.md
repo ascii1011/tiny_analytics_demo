@@ -12,6 +12,8 @@ platform resources:
 
 Airflow resources:
  - custom api
+ - Other containers in the same network can use http://airflow:8080/api/v1/{endpoint} to access the API
+ - resources outside of the same network will need to use http://localhost:8251/api/v1/{endpoint} to access the API
 
 Client side resources:
  - generate data dag

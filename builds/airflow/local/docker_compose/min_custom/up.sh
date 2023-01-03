@@ -1,6 +1,7 @@
 #!/bin/bash 
 
-docker-compose --env-file ~/dev/.env up -d --force-recreate
+#sudo docker-compose --env-file ~/dev/.env up -d --force-recreate
+sudo docker-compose up -d --build
 
 #sleep 1
 

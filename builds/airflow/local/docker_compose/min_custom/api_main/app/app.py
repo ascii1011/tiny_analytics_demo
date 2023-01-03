@@ -1,6 +1,7 @@
 #!/opt/venv/bin/python
 import os
 import requests
+from pprint import pprint
 
 from flask import Flask, redirect, render_template, request, url_for
 app = Flask(__name__)
@@ -15,33 +16,48 @@ from utils import download_image, generate_prompt
 def index():
     return render_template("index.html")
 
+
+def trigger_dag_v2(dag_id=""):
+    """ only for use from either the host machine (aka mac) or from a container outside of the network that airflow container is apart of"""
+    try:
+        api_url = f"{os.environ['AIRFLOW_API_URL_FROM_HOST']}"
+        endpoint = "/dags/example_02_custom/dagRuns"
+        api_endpoint = api_url + endpoint
+        print(f'{api_endpoint=}')
+        headers = {'Content-Type': 'application/json'}
+        data = '{ "conf": "{}" }'
+        resp = requests.post(api_endpoint, auth=(os.environ['AIRFLOW_USERNAME'], os.environ['AIRFLOW_PASSWORD']), headers=headers, data=data, timeout=1.5) 
+        pprint(resp.json())
+
+    except Exception as e:
+        print(f'err: {e}')
+
 def trigger_dag(dag_id):
     print(f'## trigger_dag({dag_id}) ##')
+
+    host = os.environ["AIRFLOW_HOST"]
     username = "admin"
     password = "airflow"
     #api_endpoint = "http://192.168.192.5:8251/api/v1/dags/{dag_id}/dagRuns"
-    api_endpoint = "http://192.168.192.5:8251/api/v1/dags/example_02_custom/dagRuns"
+    api_endpoint = f"http://{host}:8251/api/v1/dags/example_02_custom/dagRuns"
     print(f"\t- {api_endpoint=}")
 
     headers = {'Content-Type': 'application/json'} #, 'username': username, 'password': password}
     print(f"\t- {headers=}")
     data = '{ "conf": "{}" }'
     print(f"\t- {data=}")
-    #return requests.post(api_endpoint, auth=(username, password), headers=headers, data=data)
-    return requests.post(api_endpoint, headers=headers, data=data)
+    #return requests.post(api_endpoint, headers=headers, data=data)
+    return requests.post(api_endpoint, auth=(username, password), headers=headers, data=data)
 
 @app.route("/airflow_request", methods=("GET", "POST"))
 def airflow_request():
-    """
-    url = "http://localhost:8251/api/v1/dags/example_02_custom/dagRuns"
-    
-    """
+    """use a dag_id from the form to trigger an airflow DAG"""
     example_dag_id = "example_02_custom"
     example_url = f"http://localhost:8251/api/v1/dags/{example_dag_id}/dagRuns"
     
     if request.method == "POST":
         dag_id = request.form["dag_id"]
-        response = trigger_dag(dag_id)
+        response = trigger_dag_v2(dag_id)
 
         print(f"{response=}({type(response)})")
 

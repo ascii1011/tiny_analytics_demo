@@ -56,38 +56,35 @@ services:
     #    - DEBUG=${DEBUG}
     environment:
       - DATABASE_URL=postgres://airflow:airflow@postgres/airflow
-      - AIRFLOW_API_URL_IN_NETWORK=http://airflow:8080/api/v1/
-      - AIRFLOW_API_URL_FROM_HOST=http://localhost:8251/api/v1/
-      - AIRFLOW_USERNAME=admin
-      - AIRFLOW_PASSWORD=airflow
     env_file:
      - ~/dev/.env_openai_creds
     volumes:
-     - ./api_main/app:/opt/app
+     - ./app:/opt/app
      - ~/dev/mnt_data/tiny_analytics_platform/min_custom/api_main/download:/opt/download/
     #command: ["python", "server.py"]
     depends_on: 
       - postgres
     ports:
       - 8099:5000
-    networks:
-      - tapd_net
 
   client_nextjs:
-    container_name: client_nextjs
     build:
       context: ./client_nextjs
       dockerfile: Dockerfile
-    #volumes:
-    #  - './client/app:/usr/src/app'
+    volumes:
+      - './client/app:/usr/src/app'
+      - '/usr/src/app/node_modules'
     ports:
-      - 3000:3000
+      - 3008:3000
     environment:
+      - API_URL=api_main
+      - NODE_ENV=development
+      - REACT_APP_SERVICE_URL=http://localhost:8080
+      - CHOKIDAR_USEPOLLING=true
       - DATABASE_URL=postgres://airflow:airflow@postgres/airflow
     depends_on:
+      - api_main
       - postgres
-    networks:
-      - tapd_net
 
   mongo:
     image: mongo
