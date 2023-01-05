@@ -8,7 +8,7 @@
 
 #pip3 install --no-cache-dir --upgrade -r /opt/app/requirements.txt
 
-bash /opt/app/install.sh
+bash /opt/app/app3/install.sh
 
 echo 'tailing...'
 tail -f /dev/null

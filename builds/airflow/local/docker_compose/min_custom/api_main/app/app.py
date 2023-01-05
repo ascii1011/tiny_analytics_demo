@@ -4,13 +4,103 @@ import requests
 from pprint import pprint
 
 from flask import Flask, redirect, render_template, request, url_for
-app = Flask(__name__)
+from flask_login import LoginManager, login_user, logout_user, login_required
+from flask_sqlalchemy import SQLAlchemy
 
 import openai
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 from utils import download_image, generate_prompt
 
+app = Flask(__name__)
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+db = SQLAlchemy()
+
+@login_manager.user_loader
+def load_user(user_id):
+    # Look up the user in the database and return the user object
+    return User.get(user_id)
+class User:
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return self.id
+    
+    @classmethod
+    def authenticate(cls, username, password):
+        user = cls.query.filter_by(username=username).first()
+        if user and user.password == password:
+            return user
+        return None
+    
+    @classmethod
+    def get(cls, id):
+        return cls.query.get(id)
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        # Create a new user
+        user = User(request.form['username'], request.form['password'])
+        db.session.add(user)
+        db.session.commit()
+        return redirect(url_for('login'))
+    else:
+        # Render the signup form
+        return '''
+            <form method="post">
+                <input type="text" name="username" placeholder="Username">
+                <input type="password" name="password" placeholder="Password">
+                <input type="submit" value="Sign Up">
+            </form>
+        '''
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        # Authenticate the user
+        user = User.authenticate(request.form['username'], request.form['password'])
+        if user:
+            # Log the user in
+            login_user(user)
+            return redirect(url_for('protected'))
+        else:
+            # Authentication failed
+            return 'Invalid username or password'
+    else:
+        # Render the login form
+        return '''
+            <form method="post">
+                <input type="text" name="username" placeholder="Username">
+                <input type="password" name="password" placeholder="Password">
+                <input type="submit" value="Log In">
+            </form>
+        '''
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+@app.route('/protected')
+@login_required
+def protected():
+    return 'You are logged in!'
 
 @app.route("/")
 def index():

@@ -4,7 +4,7 @@ LABEL org.unlimitedchange.image.authors="Christopher R. Harty <ascii1011@gmail.c
 
 EXPOSE 5000
 
-RUN echo '[ ! -z "$TERM" -a -r /etc/motd ] && cat /etc/os-release && python --version && cat /etc/issue && cat /etc/motd' \
+RUN echo '[ ! -z "$TERM" -a -r /etc/motd ] && cat /etc/os-release && python --version && cat /etc/issue && cat /etc/motd && cd /opt/app/app3' \
     >> /etc/bash.bashrc \
     ; echo "\
     =============\n\
@@ -16,7 +16,13 @@ RUN echo '[ ! -z "$TERM" -a -r /etc/motd ] && cat /etc/os-release && python --ve
     (c) Christopher R. Harty <ascii1011@gmail.com> \n\
     \n\
     Currently this container is being manually operated. \n\
-    Instructions include: \n\
+    Current Instructions include: \n\
+     - '. /opt/app3/venv/bin/activate' \n\
+     - 'python manage.py' \n\
+     - or 'python test.py' \n\
+     - 'deactivate' \n\
+    \n\
+    Old Instructions include (currently being deprecated): \n\
      - '. /opt/venv/bin/activate' \n\
      - './run.sh' \n\
      - or 'python test.py' \n\
