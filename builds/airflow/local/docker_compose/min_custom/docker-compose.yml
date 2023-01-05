@@ -18,6 +18,20 @@ services:
     restart: always
     networks:
       - tapd_net
+  pgadmin:
+    container_name: pgadmin
+    image: 'dpage/pgadmin4:5.1'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: some@gmail.com
+      PGADMIN_DEFAULT_USERNAME: pgadmin
+      PGADMIN_DEFAULT_PASSWORD: pgadmin
+    restart: unless-stopped
+    depends_on: 
+      - postgres
+    ports:
+      - 9103:80
+    networks:
+      - tapd_net
   airflow:
     build: ./airflow
     environment:
