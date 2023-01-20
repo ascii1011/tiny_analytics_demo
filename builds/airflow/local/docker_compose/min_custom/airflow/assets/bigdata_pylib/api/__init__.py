@@ -2,6 +2,7 @@
 import requests
 import json
 
+
 __all__ = ["get_request"]
 
 def get_request(url):

@@ -69,7 +69,7 @@ services:
     #  args:
     #    - DEBUG=${DEBUG}
     environment:
-      - DATABASE_URL=postgres://airflow:airflow@postgres/airflow
+      - DATABASE_URL=postgresql://tapd:tapd@postgres/tapd
       - AIRFLOW_API_URL_IN_NETWORK=http://airflow:8080/api/v1/
       - AIRFLOW_API_URL_FROM_HOST=http://localhost:8251/api/v1/
       - AIRFLOW_USERNAME=admin
@@ -128,6 +128,18 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: mgpass
       ME_CONFIG_MONGODB_URL: mongodb://mgadmin:mgpass@mongo:27017/
     restart: always
+    networks:
+      - tapd_net
+
+  jupyter-spark:
+    image: jupyter/pyspark-notebook:python-3.10.8
+    ports:
+      - "8252:8888"
+      - "4040-4080:4040-4080"
+    volumes:
+      - ~/dev/mnt_data/tiny_analytics_platform/min_custom/notebooks:/opt/notebooks/
+      #- ~/dev/mnt_data/tiny_analytics_platform/min_custom/spark/resources/data:/opt/spark/data/
+      #- ~/dev/mnt_data/tiny_analytics_platform/min_custom/spark/resources/jars:/opt/spark/jars/
     networks:
       - tapd_net
 
